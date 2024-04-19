@@ -11,7 +11,6 @@ public class MainPresenter
 {
     private readonly MainView _mainView;
     private List<Monster> _monsters = [];
-    private readonly bool _showEmptyNodes = true; // TODO
 
     public MainPresenter(MainView mainView)
     {
@@ -78,7 +77,7 @@ public class MainPresenter
                 else if (dropId < 0)
                     await AddDropGroupNode(subIdNode, dropId);
 
-                else if (_showEmptyNodes)
+                else
                     subIdNode.Nodes.Add(new TreeNode("Empty slot"));
             }
 
@@ -119,7 +118,7 @@ public class MainPresenter
             else if (dropId < 0)
                 await AddDropGroupNode(groupNode, dropId);
 
-            else if (_showEmptyNodes)
+            else
                 groupNode.Nodes.Add(new TreeNode("Empty slot"));
         }
     }
