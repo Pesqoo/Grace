@@ -329,6 +329,7 @@
             // upDown_DropMaxCount10
             // 
             upDown_DropMaxCount10.Location = new Point(338, 451);
+            upDown_DropMaxCount10.Maximum = new decimal(new int[] { 1000, 0, 0, 0 });
             upDown_DropMaxCount10.Name = "upDown_DropMaxCount10";
             upDown_DropMaxCount10.Size = new Size(61, 23);
             upDown_DropMaxCount10.TabIndex = 65;
@@ -346,6 +347,7 @@
             // upDown_DropMinCount10
             // 
             upDown_DropMinCount10.Location = new Point(271, 451);
+            upDown_DropMinCount10.Maximum = new decimal(new int[] { 1000, 0, 0, 0 });
             upDown_DropMinCount10.Name = "upDown_DropMinCount10";
             upDown_DropMinCount10.Size = new Size(61, 23);
             upDown_DropMinCount10.TabIndex = 64;
@@ -382,6 +384,7 @@
             // upDown_DropMaxCount9
             // 
             upDown_DropMaxCount9.Location = new Point(338, 407);
+            upDown_DropMaxCount9.Maximum = new decimal(new int[] { 1000, 0, 0, 0 });
             upDown_DropMaxCount9.Name = "upDown_DropMaxCount9";
             upDown_DropMaxCount9.Size = new Size(61, 23);
             upDown_DropMaxCount9.TabIndex = 59;
@@ -390,6 +393,7 @@
             // upDown_DropMinCount9
             // 
             upDown_DropMinCount9.Location = new Point(271, 407);
+            upDown_DropMinCount9.Maximum = new decimal(new int[] { 1000, 0, 0, 0 });
             upDown_DropMinCount9.Name = "upDown_DropMinCount9";
             upDown_DropMinCount9.Size = new Size(61, 23);
             upDown_DropMinCount9.TabIndex = 58;
@@ -426,6 +430,7 @@
             // upDown_DropMaxCount8
             // 
             upDown_DropMaxCount8.Location = new Point(338, 363);
+            upDown_DropMaxCount8.Maximum = new decimal(new int[] { 1000, 0, 0, 0 });
             upDown_DropMaxCount8.Name = "upDown_DropMaxCount8";
             upDown_DropMaxCount8.Size = new Size(61, 23);
             upDown_DropMaxCount8.TabIndex = 53;
@@ -434,6 +439,7 @@
             // upDown_DropMinCount8
             // 
             upDown_DropMinCount8.Location = new Point(271, 363);
+            upDown_DropMinCount8.Maximum = new decimal(new int[] { 1000, 0, 0, 0 });
             upDown_DropMinCount8.Name = "upDown_DropMinCount8";
             upDown_DropMinCount8.Size = new Size(61, 23);
             upDown_DropMinCount8.TabIndex = 52;
@@ -470,6 +476,7 @@
             // upDown_DropMaxCount7
             // 
             upDown_DropMaxCount7.Location = new Point(338, 319);
+            upDown_DropMaxCount7.Maximum = new decimal(new int[] { 1000, 0, 0, 0 });
             upDown_DropMaxCount7.Name = "upDown_DropMaxCount7";
             upDown_DropMaxCount7.Size = new Size(61, 23);
             upDown_DropMaxCount7.TabIndex = 47;
@@ -478,6 +485,7 @@
             // upDown_DropMinCount7
             // 
             upDown_DropMinCount7.Location = new Point(271, 319);
+            upDown_DropMinCount7.Maximum = new decimal(new int[] { 1000, 0, 0, 0 });
             upDown_DropMinCount7.Name = "upDown_DropMinCount7";
             upDown_DropMinCount7.Size = new Size(61, 23);
             upDown_DropMinCount7.TabIndex = 46;
@@ -514,6 +522,7 @@
             // upDown_DropMaxCount6
             // 
             upDown_DropMaxCount6.Location = new Point(338, 275);
+            upDown_DropMaxCount6.Maximum = new decimal(new int[] { 1000, 0, 0, 0 });
             upDown_DropMaxCount6.Name = "upDown_DropMaxCount6";
             upDown_DropMaxCount6.Size = new Size(61, 23);
             upDown_DropMaxCount6.TabIndex = 41;
@@ -522,6 +531,7 @@
             // upDown_DropMinCount6
             // 
             upDown_DropMinCount6.Location = new Point(271, 275);
+            upDown_DropMinCount6.Maximum = new decimal(new int[] { 1000, 0, 0, 0 });
             upDown_DropMinCount6.Name = "upDown_DropMinCount6";
             upDown_DropMinCount6.Size = new Size(61, 23);
             upDown_DropMinCount6.TabIndex = 40;
@@ -558,6 +568,7 @@
             // upDown_DropMaxCount5
             // 
             upDown_DropMaxCount5.Location = new Point(338, 231);
+            upDown_DropMaxCount5.Maximum = new decimal(new int[] { 1000, 0, 0, 0 });
             upDown_DropMaxCount5.Name = "upDown_DropMaxCount5";
             upDown_DropMaxCount5.Size = new Size(61, 23);
             upDown_DropMaxCount5.TabIndex = 35;
@@ -566,6 +577,7 @@
             // upDown_DropMinCount5
             // 
             upDown_DropMinCount5.Location = new Point(271, 231);
+            upDown_DropMinCount5.Maximum = new decimal(new int[] { 1000, 0, 0, 0 });
             upDown_DropMinCount5.Name = "upDown_DropMinCount5";
             upDown_DropMinCount5.Size = new Size(61, 23);
             upDown_DropMinCount5.TabIndex = 34;
@@ -602,6 +614,7 @@
             // upDown_DropMaxCount4
             // 
             upDown_DropMaxCount4.Location = new Point(338, 187);
+            upDown_DropMaxCount4.Maximum = new decimal(new int[] { 1000, 0, 0, 0 });
             upDown_DropMaxCount4.Name = "upDown_DropMaxCount4";
             upDown_DropMaxCount4.Size = new Size(61, 23);
             upDown_DropMaxCount4.TabIndex = 29;
@@ -610,6 +623,7 @@
             // upDown_DropMinCount4
             // 
             upDown_DropMinCount4.Location = new Point(271, 187);
+            upDown_DropMinCount4.Maximum = new decimal(new int[] { 1000, 0, 0, 0 });
             upDown_DropMinCount4.Name = "upDown_DropMinCount4";
             upDown_DropMinCount4.Size = new Size(61, 23);
             upDown_DropMinCount4.TabIndex = 28;
@@ -646,6 +660,7 @@
             // upDown_DropMaxCount3
             // 
             upDown_DropMaxCount3.Location = new Point(338, 143);
+            upDown_DropMaxCount3.Maximum = new decimal(new int[] { 1000, 0, 0, 0 });
             upDown_DropMaxCount3.Name = "upDown_DropMaxCount3";
             upDown_DropMaxCount3.Size = new Size(61, 23);
             upDown_DropMaxCount3.TabIndex = 23;
@@ -654,6 +669,7 @@
             // upDown_DropMinCount3
             // 
             upDown_DropMinCount3.Location = new Point(271, 143);
+            upDown_DropMinCount3.Maximum = new decimal(new int[] { 1000, 0, 0, 0 });
             upDown_DropMinCount3.Name = "upDown_DropMinCount3";
             upDown_DropMinCount3.Size = new Size(61, 23);
             upDown_DropMinCount3.TabIndex = 22;
@@ -690,6 +706,7 @@
             // upDown_DropMaxCount2
             // 
             upDown_DropMaxCount2.Location = new Point(338, 99);
+            upDown_DropMaxCount2.Maximum = new decimal(new int[] { 1000, 0, 0, 0 });
             upDown_DropMaxCount2.Name = "upDown_DropMaxCount2";
             upDown_DropMaxCount2.Size = new Size(61, 23);
             upDown_DropMaxCount2.TabIndex = 15;
@@ -698,6 +715,7 @@
             // upDown_DropMinCount2
             // 
             upDown_DropMinCount2.Location = new Point(271, 99);
+            upDown_DropMinCount2.Maximum = new decimal(new int[] { 1000, 0, 0, 0 });
             upDown_DropMinCount2.Name = "upDown_DropMinCount2";
             upDown_DropMinCount2.Size = new Size(61, 23);
             upDown_DropMinCount2.TabIndex = 14;
@@ -770,6 +788,7 @@
             // upDown_DropMaxCount1
             // 
             upDown_DropMaxCount1.Location = new Point(338, 55);
+            upDown_DropMaxCount1.Maximum = new decimal(new int[] { 1000, 0, 0, 0 });
             upDown_DropMaxCount1.Name = "upDown_DropMaxCount1";
             upDown_DropMaxCount1.Size = new Size(61, 23);
             upDown_DropMaxCount1.TabIndex = 3;
@@ -778,6 +797,7 @@
             // upDown_DropMinCount1
             // 
             upDown_DropMinCount1.Location = new Point(271, 55);
+            upDown_DropMinCount1.Maximum = new decimal(new int[] { 1000, 0, 0, 0 });
             upDown_DropMinCount1.Name = "upDown_DropMinCount1";
             upDown_DropMinCount1.Size = new Size(61, 23);
             upDown_DropMinCount1.TabIndex = 2;
