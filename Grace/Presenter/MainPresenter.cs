@@ -25,16 +25,16 @@ public class MainPresenter
         _mainView.Load += async (sender, e) => await ItemCache.Init();
         _mainView.Load += async (sender, e) => await MonsterCache.Init();
 
-        _mainView.LoadMonstersEventHandler += MainView_LoadMonsters;
+        _mainView.LoadMonstersEventHandler += async (sender, e) => await MainView_LoadMonsters(sender, e);
         _mainView.FilterMonstersEventHandler += MainView_FilterMonsters;
         _mainView.SelectMonsterEventHandler += async (sender, e) => await MainView_SelectMonster(sender, e);
         _mainView.SelectDropEventHandler += async (sender, e) => await MainView_SelectDrop(sender, e);
         _mainView.SaveDropEventHandler += async (sender, e) => await MainView_UpdateDrop(sender, e);
     }
 
-    private void MainView_LoadMonsters(object? sender, EventArgs e)
+    private async Task MainView_LoadMonsters(object? sender, LoadMonstersEventArgs e)
     {
-        _monsters = MonsterCache.Cache;
+        _monsters = e.ReloadDatabase ? await MonsterRepository.GetAll() : MonsterCache.Cache;
         _mainView.MonsterDataGrid.DataSource = _monsters;
     }
 
