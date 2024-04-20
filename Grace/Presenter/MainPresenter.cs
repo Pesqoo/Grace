@@ -23,7 +23,7 @@ public class MainPresenter
         _filterPresenter = new FilterPresenter(_filterView);
 
         _mainView.Load += async (sender, e) => await ItemCache.Init();
-        _mainView.Load += async (sender, e) => await MonsterCache.Init();
+        _mainView.Load += async (sender, e) => await MainView_LoadMonsters(sender, new LoadMonstersEventArgs(true));
 
         _mainView.LoadMonstersEventHandler += async (sender, e) => await MainView_LoadMonsters(sender, e);
         _mainView.FilterMonstersEventHandler += MainView_FilterMonsters;
@@ -34,7 +34,11 @@ public class MainPresenter
 
     private async Task MainView_LoadMonsters(object? sender, LoadMonstersEventArgs e)
     {
-        _monsters = e.ReloadDatabase ? await MonsterRepository.GetAll() : MonsterCache.Cache;
+        if (e.ReloadDatabase)
+        {
+            await MonsterCache.Init();
+        }
+        _monsters = MonsterCache.Cache;
         _mainView.MonsterDataGrid.DataSource = _monsters;
     }
 
