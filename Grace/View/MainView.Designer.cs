@@ -923,7 +923,6 @@
             radioButton_FilterId.TabIndex = 11;
             radioButton_FilterId.Text = "ID";
             radioButton_FilterId.UseVisualStyleBackColor = true;
-            radioButton_FilterId.CheckedChanged += radioButton_FilterId_CheckedChanged;
             // 
             // btn_Filter
             // 
@@ -933,7 +932,6 @@
             btn_Filter.TabIndex = 12;
             btn_Filter.Text = "Filter";
             btn_Filter.UseVisualStyleBackColor = true;
-            btn_Filter.Click += btn_Filter_Click;
             // 
             // MainView
             // 
