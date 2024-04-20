@@ -46,4 +46,13 @@ public static class MonsterRepository
 
         return Monster.FromDataTable(dataTable);
     }
+
+    public static async Task<List<Monster>> GetByDropId(int dropId)
+    {
+        DataTable dataTable = await DBManager.ExecuteQueryAsync(
+            $"{_selectQuery} WHERE monster.[drop_table_link_id] = {dropId} ORDER BY monster.[id] ASC;"
+        );
+
+        return Monster.FromDataTable(dataTable);
+    }
 }

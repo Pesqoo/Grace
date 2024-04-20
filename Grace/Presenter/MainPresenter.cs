@@ -1,7 +1,9 @@
 ﻿using Grace.Cache;
+using Grace.Event;
 using Grace.Model;
 using Grace.Model.DataContext;
 using Grace.Model.Repository;
+using Grace.View;
 using System.Diagnostics;
 using System.Text;
 
@@ -10,11 +12,15 @@ namespace Grace.Presenter;
 public class MainPresenter
 {
     private readonly MainView _mainView;
+    private readonly FilterView _filterView;
+    private readonly FilterPresenter _filterPresenter;
     private List<Monster> _monsters = [];
 
     public MainPresenter(MainView mainView)
     {
         _mainView = mainView;
+        _filterView = new FilterView();
+        _filterPresenter = new FilterPresenter(_filterView);
 
         _mainView.Load += async (sender, e) => await ItemCache.Init();
         _mainView.Load += async (sender, e) => await MonsterCache.Init();
@@ -32,9 +38,21 @@ public class MainPresenter
         _mainView.MonsterDataGrid.DataSource = _monsters;
     }
 
-    private void MainView_FilterMonsters(object? sender, EventArgs e)
+    private async void MainView_FilterMonsters(object? sender, FilterMonstersEventArgs e)
     {
-        _monsters = MonsterCache.Cache.FindAll(m => m.Id < 10);
+        if (e.FilterType == MonsterFilterType.ALL)
+        {
+            _monsters = MonsterCache.Cache;
+        }
+        else
+        {
+            object result = await _filterPresenter.OnShowView(e.FilterType);
+            if (result is List<Monster> list)
+            {
+                _monsters = list;
+            }
+        }
+
         _mainView.MonsterDataGrid.DataSource = _monsters;
     }
 
