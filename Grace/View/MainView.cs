@@ -1,3 +1,5 @@
+using Grace.Event;
+using System.Diagnostics;
 using Timer = System.Windows.Forms.Timer;
 
 namespace Grace;
@@ -5,7 +7,7 @@ namespace Grace;
 public partial class MainView : Form
 {
     public event EventHandler? LoadMonstersEventHandler;
-    public event EventHandler? FilterMonstersEventHandler;
+    public event EventHandler<FilterMonstersEventArgs>? FilterMonstersEventHandler;
     public event EventHandler<DataGridViewCellEventArgs>? SelectMonsterEventHandler;
     public event EventHandler<TreeViewEventArgs>? SelectDropEventHandler;
     public event EventHandler? SaveDropEventHandler;
@@ -19,6 +21,8 @@ public partial class MainView : Form
     public Label TotalDropPercentage => label_TotalPercentage;
     public TextBox DropGroupId => textBox_DropId;
     public ProgressBar ProgressBar => progressBar1;
+    private MonsterFilterType _monsterFilterType = MonsterFilterType.ALL;
+    private RadioButton[] FilterButtons => GetControlsByName<RadioButton>(groupBox_Filter, "radioButton");
 
     public MainView()
     {
@@ -30,11 +34,16 @@ public partial class MainView : Form
 
     private void InitializeEvent()
     {
-        btn_LoadMonsters.Click += (sender, e) => { LoadMonstersEventHandler?.Invoke(sender, e); };
-        btn_FilterMonsters.Click += (sender, e) => { FilterMonstersEventHandler?.Invoke(sender, e); };
+        btn_ReloadData.Click += (sender, e) => { LoadMonstersEventHandler?.Invoke(sender, e); };
+        btn_Filter.Click += (sender, e) => { FilterMonstersEventHandler?.Invoke(sender, new FilterMonstersEventArgs(GetFilterType())); };
         monsterDataGrid.CellClick += (sender, e) => { SelectMonsterEventHandler?.Invoke(sender, e); };
         dropTreeView.AfterSelect += (sender, e) => { SelectDropEventHandler?.Invoke(sender, e); };
         btn_Save.Click += (sender, e) => { SaveDropEventHandler?.Invoke(sender, e); };
+    }
+
+    private void HandleFilterMonsters(object sender, FilterMonstersEventArgs e)
+    {
+
     }
 
     private static T[] GetControlsByName<T>(Control parentControl, string name) where T : Control
@@ -60,5 +69,30 @@ public partial class MainView : Form
             label_Result.Text = "";
             _t?.Stop();
         };
+    }
+
+    private void radioButton_FilterId_CheckedChanged(object sender, EventArgs e)
+    {
+        Debug.WriteLine("Checked Change ID");
+    }
+
+    private void btn_Filter_Click(object sender, EventArgs e)
+    {
+
+    }
+
+    private MonsterFilterType GetFilterType()
+    {
+        int checkedIndex = -1;
+        foreach (RadioButton radioButton in groupBox_Filter.Controls.OfType<RadioButton>())
+        {
+            if (radioButton.Checked)
+            {
+                checkedIndex = groupBox_Filter.Controls.IndexOf(radioButton);
+                break;
+            }
+        }
+
+        return (MonsterFilterType)checkedIndex;
     }
 }

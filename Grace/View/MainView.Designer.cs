@@ -39,12 +39,11 @@
             TreeNode treeNode8 = new TreeNode("Sub ID #8");
             TreeNode treeNode9 = new TreeNode("Sub ID #9");
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainView));
-            btn_LoadMonsters = new Button();
+            btn_ReloadData = new Button();
             monsterDataGrid = new DataGridView();
             cMonsterName = new DataGridViewTextBoxColumn();
             cLocation = new DataGridViewTextBoxColumn();
             cMonsterId = new DataGridViewTextBoxColumn();
-            btn_FilterMonsters = new Button();
             groupBox_MonsterDetails = new GroupBox();
             groupBox_DropGroupDetails = new GroupBox();
             label_Result = new Label();
@@ -108,6 +107,13 @@
             dropTreeView = new TreeView();
             groupBox_DropTableDetails = new GroupBox();
             progressBar1 = new ProgressBar();
+            radioButton_FilterAll = new RadioButton();
+            groupBox_Filter = new GroupBox();
+            radioButton_FilterDrop = new RadioButton();
+            radioButton_FilterLocation = new RadioButton();
+            radioButton_FilterName = new RadioButton();
+            radioButton_FilterId = new RadioButton();
+            btn_Filter = new Button();
             ((System.ComponentModel.ISupportInitialize)monsterDataGrid).BeginInit();
             groupBox_MonsterDetails.SuspendLayout();
             groupBox_DropGroupDetails.SuspendLayout();
@@ -132,16 +138,17 @@
             ((System.ComponentModel.ISupportInitialize)upDown_DropMaxCount1).BeginInit();
             ((System.ComponentModel.ISupportInitialize)upDown_DropMinCount1).BeginInit();
             groupBox_DropTableDetails.SuspendLayout();
+            groupBox_Filter.SuspendLayout();
             SuspendLayout();
             // 
-            // btn_LoadMonsters
+            // btn_ReloadData
             // 
-            btn_LoadMonsters.Location = new Point(12, 12);
-            btn_LoadMonsters.Name = "btn_LoadMonsters";
-            btn_LoadMonsters.Size = new Size(128, 23);
-            btn_LoadMonsters.TabIndex = 1;
-            btn_LoadMonsters.Text = "Load Monsters";
-            btn_LoadMonsters.UseVisualStyleBackColor = true;
+            btn_ReloadData.Location = new Point(12, 12);
+            btn_ReloadData.Name = "btn_ReloadData";
+            btn_ReloadData.Size = new Size(128, 23);
+            btn_ReloadData.TabIndex = 1;
+            btn_ReloadData.Text = "Reload Data";
+            btn_ReloadData.UseVisualStyleBackColor = true;
             // 
             // monsterDataGrid
             // 
@@ -193,19 +200,10 @@
             cMonsterId.ReadOnly = true;
             cMonsterId.Width = 88;
             // 
-            // btn_FilterMonsters
-            // 
-            btn_FilterMonsters.Location = new Point(146, 12);
-            btn_FilterMonsters.Name = "btn_FilterMonsters";
-            btn_FilterMonsters.Size = new Size(128, 23);
-            btn_FilterMonsters.TabIndex = 4;
-            btn_FilterMonsters.Text = "Filter";
-            btn_FilterMonsters.UseVisualStyleBackColor = true;
-            // 
             // groupBox_MonsterDetails
             // 
             groupBox_MonsterDetails.Controls.Add(monsterDataGrid);
-            groupBox_MonsterDetails.Location = new Point(12, 41);
+            groupBox_MonsterDetails.Location = new Point(12, 70);
             groupBox_MonsterDetails.Name = "groupBox_MonsterDetails";
             groupBox_MonsterDetails.Size = new Size(392, 510);
             groupBox_MonsterDetails.TabIndex = 5;
@@ -273,7 +271,7 @@
             groupBox_DropGroupDetails.Controls.Add(upDown_DropMaxCount1);
             groupBox_DropGroupDetails.Controls.Add(upDown_DropMinCount1);
             groupBox_DropGroupDetails.Controls.Add(textBox_DropName1);
-            groupBox_DropGroupDetails.Location = new Point(794, 41);
+            groupBox_DropGroupDetails.Location = new Point(794, 70);
             groupBox_DropGroupDetails.Name = "groupBox_DropGroupDetails";
             groupBox_DropGroupDetails.Size = new Size(476, 510);
             groupBox_DropGroupDetails.TabIndex = 4;
@@ -841,7 +839,7 @@
             // groupBox_DropTableDetails
             // 
             groupBox_DropTableDetails.Controls.Add(dropTreeView);
-            groupBox_DropTableDetails.Location = new Point(403, 41);
+            groupBox_DropTableDetails.Location = new Point(403, 70);
             groupBox_DropTableDetails.Name = "groupBox_DropTableDetails";
             groupBox_DropTableDetails.Size = new Size(392, 510);
             groupBox_DropTableDetails.TabIndex = 6;
@@ -860,16 +858,94 @@
             progressBar1.TabIndex = 9;
             progressBar1.Visible = false;
             // 
+            // radioButton_FilterAll
+            // 
+            radioButton_FilterAll.AutoSize = true;
+            radioButton_FilterAll.Checked = true;
+            radioButton_FilterAll.Location = new Point(6, 22);
+            radioButton_FilterAll.Name = "radioButton_FilterAll";
+            radioButton_FilterAll.Size = new Size(39, 19);
+            radioButton_FilterAll.TabIndex = 10;
+            radioButton_FilterAll.TabStop = true;
+            radioButton_FilterAll.Text = "All";
+            radioButton_FilterAll.UseVisualStyleBackColor = true;
+            // 
+            // groupBox_Filter
+            // 
+            groupBox_Filter.Controls.Add(radioButton_FilterDrop);
+            groupBox_Filter.Controls.Add(radioButton_FilterLocation);
+            groupBox_Filter.Controls.Add(radioButton_FilterName);
+            groupBox_Filter.Controls.Add(radioButton_FilterId);
+            groupBox_Filter.Controls.Add(radioButton_FilterAll);
+            groupBox_Filter.Location = new Point(146, 12);
+            groupBox_Filter.Name = "groupBox_Filter";
+            groupBox_Filter.Size = new Size(324, 52);
+            groupBox_Filter.TabIndex = 11;
+            groupBox_Filter.TabStop = false;
+            groupBox_Filter.Text = "Filter";
+            // 
+            // radioButton_FilterDrop
+            // 
+            radioButton_FilterDrop.AutoSize = true;
+            radioButton_FilterDrop.Location = new Point(233, 22);
+            radioButton_FilterDrop.Name = "radioButton_FilterDrop";
+            radioButton_FilterDrop.Size = new Size(65, 19);
+            radioButton_FilterDrop.TabIndex = 14;
+            radioButton_FilterDrop.Text = "Drop ID";
+            radioButton_FilterDrop.UseVisualStyleBackColor = true;
+            // 
+            // radioButton_FilterLocation
+            // 
+            radioButton_FilterLocation.AutoSize = true;
+            radioButton_FilterLocation.Location = new Point(156, 22);
+            radioButton_FilterLocation.Name = "radioButton_FilterLocation";
+            radioButton_FilterLocation.Size = new Size(71, 19);
+            radioButton_FilterLocation.TabIndex = 13;
+            radioButton_FilterLocation.Text = "Location";
+            radioButton_FilterLocation.UseVisualStyleBackColor = true;
+            // 
+            // radioButton_FilterName
+            // 
+            radioButton_FilterName.AutoSize = true;
+            radioButton_FilterName.Location = new Point(93, 22);
+            radioButton_FilterName.Name = "radioButton_FilterName";
+            radioButton_FilterName.Size = new Size(57, 19);
+            radioButton_FilterName.TabIndex = 12;
+            radioButton_FilterName.Text = "Name";
+            radioButton_FilterName.UseVisualStyleBackColor = true;
+            // 
+            // radioButton_FilterId
+            // 
+            radioButton_FilterId.AutoSize = true;
+            radioButton_FilterId.Location = new Point(51, 22);
+            radioButton_FilterId.Name = "radioButton_FilterId";
+            radioButton_FilterId.Size = new Size(36, 19);
+            radioButton_FilterId.TabIndex = 11;
+            radioButton_FilterId.Text = "ID";
+            radioButton_FilterId.UseVisualStyleBackColor = true;
+            radioButton_FilterId.CheckedChanged += radioButton_FilterId_CheckedChanged;
+            // 
+            // btn_Filter
+            // 
+            btn_Filter.Location = new Point(12, 41);
+            btn_Filter.Name = "btn_Filter";
+            btn_Filter.Size = new Size(128, 23);
+            btn_Filter.TabIndex = 12;
+            btn_Filter.Text = "Filter";
+            btn_Filter.UseVisualStyleBackColor = true;
+            btn_Filter.Click += btn_Filter_Click;
+            // 
             // MainView
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(1284, 561);
+            ClientSize = new Size(1284, 591);
+            Controls.Add(btn_Filter);
+            Controls.Add(groupBox_Filter);
             Controls.Add(progressBar1);
             Controls.Add(groupBox_DropGroupDetails);
             Controls.Add(groupBox_MonsterDetails);
-            Controls.Add(btn_FilterMonsters);
-            Controls.Add(btn_LoadMonsters);
+            Controls.Add(btn_ReloadData);
             Controls.Add(groupBox_DropTableDetails);
             Icon = (Icon)resources.GetObject("$this.Icon");
             Name = "MainView";
@@ -899,12 +975,13 @@
             ((System.ComponentModel.ISupportInitialize)upDown_DropMaxCount1).EndInit();
             ((System.ComponentModel.ISupportInitialize)upDown_DropMinCount1).EndInit();
             groupBox_DropTableDetails.ResumeLayout(false);
+            groupBox_Filter.ResumeLayout(false);
+            groupBox_Filter.PerformLayout();
             ResumeLayout(false);
         }
 
         #endregion
-        private Button btn_LoadMonsters;
-        private Button btn_FilterMonsters;
+        private Button btn_ReloadData;
         private GroupBox groupBox_MonsterDetails;
         private DataGridView monsterDataGrid;
         private TreeView dropTreeView;
@@ -972,5 +1049,12 @@
         private TextBox textBox_DropId;
         private ProgressBar progressBar1;
         private Label label_Result;
+        private RadioButton radioButton_FilterAll;
+        private GroupBox groupBox_Filter;
+        private RadioButton radioButton_FilterId;
+        private RadioButton radioButton_FilterName;
+        private RadioButton radioButton_FilterDrop;
+        private RadioButton radioButton_FilterLocation;
+        private Button btn_Filter;
     }
 }
