@@ -3,12 +3,18 @@ using Grace.Model.Repository;
 
 namespace Grace.Cache;
 
-public static class MonsterCache
+public class MonsterCache
 {
+    private readonly MonsterRepository _monsterRepository;
     public static List<Monster> Cache = [];
 
-    public static async Task Init()
+    public MonsterCache(MonsterRepository monsterRepository)
     {
-        Cache = await MonsterRepository.GetAll();
+        _monsterRepository = monsterRepository;
+    }
+
+    public async Task Init()
+    {
+        Cache = await _monsterRepository.GetAll();
     }
 }

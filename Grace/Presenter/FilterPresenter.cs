@@ -8,13 +8,15 @@ namespace Grace.Presenter;
 public class FilterPresenter
 {
     private FilterView _filterView;
+    private MonsterRepository _monsterRepository;
 
-    public FilterPresenter(FilterView filterView)
+    public FilterPresenter(FilterView filterView, MonsterRepository monsterRepository)
     {
         _filterView = filterView;
+        _monsterRepository = monsterRepository;
     }
 
-    public async Task<object> OnShowView(MonsterFilterType filterType)
+    public async Task<List<Monster>?> OnShowView(MonsterFilterType filterType)
     {
         List<Monster> filterResult = new();
 
@@ -29,19 +31,19 @@ public class FilterPresenter
                 case MonsterFilterType.ID:
                     if (int.TryParse(filterInput, out int monsterId))
                     {
-                        filterResult = await MonsterRepository.GetById(monsterId);
+                        filterResult = await _monsterRepository.GetById(monsterId);
                     }
                     break;
                 case MonsterFilterType.NAME:
-                    filterResult = await MonsterRepository.GetByName(filterInput);
+                    filterResult = await _monsterRepository.GetByName(filterInput);
                     break;
                 case MonsterFilterType.LOCATION:
-                    filterResult = await MonsterRepository.GetByLocation(filterInput);
+                    filterResult = await _monsterRepository.GetByLocation(filterInput);
                     break;
                 case MonsterFilterType.DROP_ID:
                     if (int.TryParse(filterInput, out int dropId))
                     {
-                        filterResult = await MonsterRepository.GetByDropId(dropId);
+                        filterResult = await _monsterRepository.GetByDropId(dropId);
                     }
                     break;
             }
@@ -49,6 +51,6 @@ public class FilterPresenter
             return filterResult;
         }
 
-        return dialogResult;
+        return null;
     }
 }
