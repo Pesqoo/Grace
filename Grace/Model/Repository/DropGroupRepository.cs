@@ -3,11 +3,11 @@ using System.Data;
 
 namespace Grace.Model.Repository;
 
-public class DropGroupRepository
+public class DropGroupRepository(DBManager _dbManager)
 {
-    public static async Task<DropGroup?> GetById(int dropGroupId)
+    public async Task<DropGroup?> GetById(int dropGroupId)
     {
-        DataTable dataTable = await DBManager.ExecuteQueryAsync(
+        DataTable dataTable = await _dbManager.ExecuteQueryAsync(
             $"SELECT * FROM DropGroupResource WHERE id = {dropGroupId}"
         );
 

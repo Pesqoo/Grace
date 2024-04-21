@@ -3,13 +3,19 @@ using System.Data;
 
 namespace Grace.Cache;
 
-public static class ItemCache
+public class ItemCache
 {
-    public static readonly Dictionary<int, string> Cache = new();
+    private readonly DBManager _dbManager;
+    public static readonly Dictionary<int, string> Cache = [];
 
-    public static async Task Init()
+    public ItemCache(DBManager dbManager)
     {
-        DataTable items = await DBManager.ExecuteQueryAsync($@"
+        _dbManager = dbManager;
+    }
+
+    public async Task Init()
+    {
+        DataTable items = await _dbManager.ExecuteQueryAsync($@"
             SELECT id, string.[value] as itemName
             FROM ItemResource as item
             LEFT JOIN StringResource_EN as string ON item.[name_id] = string.[code]"

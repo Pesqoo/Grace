@@ -1,13 +1,19 @@
-﻿using Microsoft.Data.SqlClient;
+﻿using Grace.Config;
 using System.Data;
+using System.Data.SqlClient;
 
 namespace Grace.Model.DataContext;
 
-public static class DBManager
+public class DBManager
 {
-    private static readonly string _connectionString = "Server=localhost;Database=Arcadia;User Id=sa;Password=Rappelz1;TrustServerCertificate=true;";
+    private readonly string _connectionString;
 
-    public static async Task<DataTable> ExecuteQueryAsync(string query)
+    public DBManager(ConfigManager configManager)
+    {
+        _connectionString = configManager.Config.ConnectionString;
+    }
+
+    public async Task<DataTable> ExecuteQueryAsync(string query)
     {
         DataTable dataTable = new DataTable();
         try
@@ -36,11 +42,11 @@ public static class DBManager
         return dataTable;
     }
 
-    public static async Task<int> ExecuteNonQueryAsync(string query)
+    public async Task<int> ExecuteNonQueryAsync(string query)
     {
         try
         {
-            using (SqlConnection connection = new SqlConnection("Server=localhost;Database=Arcadia;User Id=sa;Password=Rappelz1;TrustServerCertificate=true;"))
+            using (SqlConnection connection = new SqlConnection(_connectionString))
             {
                 await connection.OpenAsync();
                 using (SqlCommand command = new SqlCommand(query, connection))

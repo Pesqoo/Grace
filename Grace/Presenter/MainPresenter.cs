@@ -3,7 +3,6 @@ using Grace.Event;
 using Grace.Model;
 using Grace.Model.DataContext;
 using Grace.Model.Repository;
-using Grace.View;
 using System.Diagnostics;
 using System.Text;
 
@@ -11,22 +10,38 @@ namespace Grace.Presenter;
 
 public class MainPresenter
 {
+    private readonly DBManager _dbManager;
+    private readonly DropGroupRepository _dropGroupRepository;
+    private readonly DropTableRepository _dropTableRepository;
     private readonly MainView _mainView;
-    private readonly FilterView _filterView;
     private readonly FilterPresenter _filterPresenter;
+    private readonly ItemCache _itemCache;
+    private readonly MonsterCache _monsterCache;
     private List<Monster> _monsters = [];
 
-    public MainPresenter(MainView mainView)
+    public MainPresenter(
+        MainView mainView,
+        DBManager dbManager,
+        DropGroupRepository dropGroupRepository,
+        DropTableRepository dropTableRepository,
+        ItemCache itemCache,
+        MonsterCache monsterCache,
+        FilterPresenter filterPresenter
+        )
     {
         _mainView = mainView;
-        _filterView = new FilterView();
-        _filterPresenter = new FilterPresenter(_filterView);
+        _dbManager = dbManager;
+        _dropGroupRepository = dropGroupRepository;
+        _dropTableRepository = dropTableRepository;
+        _itemCache = itemCache;
+        _monsterCache = monsterCache;
+        _filterPresenter = filterPresenter;
 
-        _mainView.Load += async (sender, e) => await ItemCache.Init();
+        _mainView.Load += async (sender, e) => await _itemCache.Init();
         _mainView.Load += async (sender, e) => await MainView_LoadMonsters(sender, new LoadMonstersEventArgs(true));
 
         _mainView.LoadMonstersEventHandler += async (sender, e) => await MainView_LoadMonsters(sender, e);
-        _mainView.FilterMonstersEventHandler += MainView_FilterMonsters;
+        _mainView.FilterMonstersEventHandler += async (sender, e) => await MainView_FilterMonsters(sender, e);
         _mainView.SelectMonsterEventHandler += async (sender, e) => await MainView_SelectMonster(sender, e);
         _mainView.SelectDropEventHandler += async (sender, e) => await MainView_SelectDrop(sender, e);
         _mainView.SaveDropEventHandler += async (sender, e) => await MainView_UpdateDrop(sender, e);
@@ -36,13 +51,13 @@ public class MainPresenter
     {
         if (e.ReloadDatabase)
         {
-            await MonsterCache.Init();
+            await _monsterCache.Init();
         }
         _monsters = MonsterCache.Cache;
         _mainView.MonsterDataGrid.DataSource = _monsters;
     }
 
-    private async void MainView_FilterMonsters(object? sender, FilterMonstersEventArgs e)
+    private async Task MainView_FilterMonsters(object? sender, FilterMonstersEventArgs e)
     {
         if (e.FilterType == MonsterFilterType.ALL)
         {
@@ -50,10 +65,10 @@ public class MainPresenter
         }
         else
         {
-            object result = await _filterPresenter.OnShowView(e.FilterType);
-            if (result is List<Monster> list)
+            List<Monster>? result = await _filterPresenter.OnShowView(e.FilterType);
+            if (result != null)
             {
-                _monsters = list;
+                _monsters = result;
             }
         }
 
@@ -69,7 +84,7 @@ public class MainPresenter
         _mainView.ProgressBar.Visible = true;
 
         Monster selectedMonster = _monsters[e.RowIndex];
-        List<DropTable> dropTables = await DropTableRepository.GetById(selectedMonster.Id);
+        List<DropTable> dropTables = await _dropTableRepository.GetById(selectedMonster.Id);
 
         _mainView.DropTreeView.Nodes.Clear();
         _mainView.DropTreeView.BeginUpdate();
@@ -123,7 +138,7 @@ public class MainPresenter
         parentNode.Nodes.Add(groupNode);
         groupNode.Tag = dropGroupId;
 
-        DropGroup? dropGroup = await DropGroupRepository.GetById(dropGroupId);
+        DropGroup? dropGroup = await _dropGroupRepository.GetById(dropGroupId);
         if (dropGroup == null)
         {
             TreeNode noDataNode = new("No drops found");
@@ -150,7 +165,7 @@ public class MainPresenter
         // load dropGroup
         if (e.Node?.Tag is int dropId)
         {
-            DropGroup? dropGroup = await DropGroupRepository.GetById(dropId);
+            DropGroup? dropGroup = await _dropGroupRepository.GetById(dropId);
 
             if (dropGroup == null)
             {
@@ -166,7 +181,7 @@ public class MainPresenter
         else if (e.Node?.Tag is string tagString)
         {
             int[] ids = tagString.Split(',').Select(int.Parse).ToArray();
-            DropTable? dropTable = await DropTableRepository.GetByIdAndSubId(ids[0], ids[1]);
+            DropTable? dropTable = await _dropTableRepository.GetByIdAndSubId(ids[0], ids[1]);
 
             if (dropTable == null)
             {
@@ -253,7 +268,7 @@ public class MainPresenter
 
         Debug.WriteLine(queryBuilder.ToString());
 
-        await DBManager.ExecuteNonQueryAsync(queryBuilder.ToString());
+        await _dbManager.ExecuteNonQueryAsync(queryBuilder.ToString());
         _mainView.ShowResult("Successfully saved");
     }
 }

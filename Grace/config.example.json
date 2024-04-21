@@ -1,0 +1,3 @@
+{
+  "connectionString": "Server=your_server;Database=your_database;User Id=your_user_id;Password=your_password;TrustServerCertificate=true;"
+}

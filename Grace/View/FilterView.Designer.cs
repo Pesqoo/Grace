@@ -70,8 +70,10 @@
             // 
             // FilterView
             // 
+            AcceptButton = btn_Filter;
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
+            CancelButton = btn_Cancel;
             ClientSize = new Size(209, 76);
             Controls.Add(btn_Filter);
             Controls.Add(btn_Cancel);
