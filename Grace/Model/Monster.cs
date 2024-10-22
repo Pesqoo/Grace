@@ -7,7 +7,7 @@ public class Monster
     public int Id { get; set; }
     public string? Name { get; set; }
     public string? Location { get; set; }
-    public int DropId { get; set; }
+    public int DropTableId { get; set; }
     public int Level { get; set; }
 
     private static Monster FromDataRow(DataRow dataRow) => new()
@@ -15,7 +15,7 @@ public class Monster
         Id = dataRow.Field<int>("id"),
         Name = dataRow.Field<string>("name"),
         Location = dataRow.Field<string>("location"),
-        DropId = dataRow.Field<int>("drop_table_link_id"),
+        DropTableId = dataRow.Field<int>("drop_table_link_id"),
         Level = dataRow.Field<int>("level"),
     };
 

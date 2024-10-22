@@ -1,6 +1,6 @@
 ﻿namespace Grace.View
 {
-    partial class FilterView
+    partial class FilterDropGroupsView
     {
         /// <summary>
         /// Required designer variable.

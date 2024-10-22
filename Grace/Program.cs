@@ -8,49 +8,56 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Grace;
 
-// suppressing since ServiceProvider != null after constructor
-// and GetService<MainView>() does not return null
-#pragma warning disable CS8604, CS8618
 internal static class Program
 {
-    /// <summary>
-    ///  The main entry point for the application.
-    /// </summary>
+    public static IServiceProvider? ServiceProvider { get; private set; }
+
     [STAThread]
     static void Main()
     {
-        // To customize application configuration such as set high DPI settings or default font,
-        // see https://aka.ms/applicationconfiguration.
         ApplicationConfiguration.Initialize();
 
-        // Configure services and instantiate MainPresenter
         ConfigureServices();
-        GetService<MainPresenter>();
 
-        Application.Run(GetService<MainView>());
+        Application.Run(ServiceProvider!.GetRequiredService<MainView>());
     }
 
-    public static IServiceProvider ServiceProvider { get; private set; }
     static void ConfigureServices()
     {
         var services = new ServiceCollection()
             .AddSingleton<MainView>()
+            .AddSingleton<DropGroupsView>()
+            .AddSingleton<MonsterView>()
             .AddSingleton<FilterView>()
+            .AddSingleton<SetItemView>()
+            .AddSingleton<SetDropGroupView>()
+            .AddSingleton<FilterDropGroupsView>()
+            .AddSingleton<RenameView>()
+            .AddSingleton<UpdateWarningView>()
+            .AddSingleton<MainPresenter>()
+            .AddSingleton<MonsterPresenter>()
+            .AddSingleton<DropGroupPresenter>()
+            .AddSingleton<FilterMonsterPresenter>()
+            .AddSingleton<FilterDropGroupsPresenter>()
+            .AddSingleton<SetItemPresenter>()
+            .AddSingleton<SetDropGroupPresenter>()
+            .AddSingleton<RenameDropGroupPresenter>()
             .AddSingleton<ConfigManager>()
             .AddSingleton<DBManager>()
-            .AddSingleton<DropGroupRepository>()
-            .AddSingleton<DropTableRepository>()
+            .AddSingleton<DropRepository>()
             .AddSingleton<MonsterRepository>()
-            .AddSingleton<ItemCache>()
             .AddSingleton<MonsterCache>()
-            .AddSingleton<FilterPresenter>()
-            .AddSingleton<MainPresenter>();
+            .AddSingleton<DropGroupCache>()
+            .AddSingleton<ItemCache>();
 
         ServiceProvider = services.BuildServiceProvider();
-    }
 
-    public static T? GetService<T>() where T : class
-    {
-        return (T?)ServiceProvider.GetService(typeof(T));
+        // instantiate Presenter that are not called elsewhere
+        ServiceProvider.GetRequiredService<DropGroupPresenter>();
+        ServiceProvider.GetRequiredService<MonsterPresenter>();
+        ServiceProvider.GetRequiredService<MainPresenter>();
     }
 }
+
+// workflow (ablauf nutzerinteraktion), wireframes (balsamiq, figma), epics, komponentendiagramm, 
+// schriftlicher vorschlag so sieht das ding aus, das kann das ding

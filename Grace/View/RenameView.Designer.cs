@@ -1,6 +1,6 @@
 ﻿namespace Grace.View
 {
-    partial class FilterView
+    partial class RenameView
     {
         /// <summary>
         /// Required designer variable.
@@ -39,9 +39,9 @@
             label_Filter.AutoSize = true;
             label_Filter.Location = new Point(12, 15);
             label_Filter.Name = "label_Filter";
-            label_Filter.Size = new Size(65, 15);
+            label_Filter.Size = new Size(32, 15);
             label_Filter.TabIndex = 0;
-            label_Filter.Text = "Monster ID";
+            label_Filter.Text = "Alias";
             // 
             // textBox_Filter
             // 
@@ -67,10 +67,10 @@
             btn_Filter.Name = "btn_Filter";
             btn_Filter.Size = new Size(85, 23);
             btn_Filter.TabIndex = 3;
-            btn_Filter.Text = "Filter";
+            btn_Filter.Text = "Confirm";
             btn_Filter.UseVisualStyleBackColor = true;
             // 
-            // FilterView
+            // RenameView
             // 
             AcceptButton = btn_Filter;
             AutoScaleDimensions = new SizeF(7F, 15F);
@@ -81,8 +81,8 @@
             Controls.Add(btn_Cancel);
             Controls.Add(textBox_Filter);
             Controls.Add(label_Filter);
-            Name = "FilterView";
-            Text = "Filter";
+            Name = "RenameView";
+            Text = "Rename";
             ResumeLayout(false);
             PerformLayout();
         }

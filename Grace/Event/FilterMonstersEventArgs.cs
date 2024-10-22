@@ -7,7 +7,9 @@ public class FilterMonstersEventArgs(MonsterFilterType filterType) : EventArgs
 
 public enum MonsterFilterType
 {
-    DROP_ID,
+    ITEM_ID,
+    DROP_GROUP_ID,
+    DROP_TABLE_ID,
     LOCATION,
     NAME,
     ID,

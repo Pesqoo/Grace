@@ -59,5 +59,15 @@ namespace Grace.Properties {
                 resourceCulture = value;
             }
         }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Ressource vom Typ System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap icon_1handmace_scepter {
+            get {
+                object obj = ResourceManager.GetObject("icon_1handmace_scepter", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
     }
 }

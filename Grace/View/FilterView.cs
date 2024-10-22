@@ -11,8 +11,6 @@ public partial class FilterView : Form
         StartPosition = FormStartPosition.CenterParent;
 
         InitializeComponent();
-        InitializeEvent();
-
     }
 
     public DialogResult Open(MonsterFilterType filterType)
@@ -28,16 +26,17 @@ public partial class FilterView : Form
             case MonsterFilterType.NAME:
                 label_Filter.Text = "Name";
                 break;
-            case MonsterFilterType.DROP_ID:
-                label_Filter.Text = "Drop ID";
+            case MonsterFilterType.DROP_TABLE_ID:
+                label_Filter.Text = "DropTable ID";
+                break;
+            case MonsterFilterType.DROP_GROUP_ID:
+                label_Filter.Text = "DropGroup ID";
+                break;
+            case MonsterFilterType.ITEM_ID:
+                label_Filter.Text = "Item ID";
                 break;
         }
 
         return ShowDialog();
-    }
-
-    private void InitializeEvent()
-    {
-        btn_Filter.Click += (sender, e) => { DialogResult = DialogResult.OK; };
     }
 }
