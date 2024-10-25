@@ -1,4 +1,4 @@
-﻿namespace Grace.Event;
+﻿namespace Grace.Event.ContextMenu;
 
 public class FilterItemsEventArgs : EventArgs
 {

@@ -16,6 +16,16 @@ public class DropRepository(DBManager _dbManager)
         return Drop.FromDataTable(dataTable);
     }
 
+    public async Task<List<Drop>> GetByName(List<int> ids)
+    {
+        var idList = string.Join(",", ids);
+        DataTable dataTable = await _dbManager.ExecuteQueryAsync(
+            $"SELECT * FROM DropGroupResource WHERE id IN ({idList})"
+        );
+
+        return Drop.FromDataTable(dataTable);
+    }
+
     public async Task<Drop?> GetGroupById(int dropGroupId)
     {
         DataTable dataTable = await _dbManager.ExecuteQueryAsync(

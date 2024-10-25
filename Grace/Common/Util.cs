@@ -15,28 +15,35 @@ public static class Util
             .ToArray();
     }
 
-    public static void AddItemNode(TreeNode parentNode, int itemId)
+    public static void AddItemNode(
+        TreeNodeCollection parentCollection,
+        int itemId,
+        ContextMenuStrip? contextMenu = null)
     {
         string itemName = ItemCache.Cache[itemId];
         TreeNode itemNode = new($"{itemId}: {itemName}");
         itemNode.Name = itemId.ToString();
-        parentNode.Nodes.Add(itemNode);
+
+        if (contextMenu != null)
+            itemNode.ContextMenuStrip = contextMenu;
+
+        parentCollection.Add(itemNode);
     }
 
-    public static TreeNode CreateItemNode(int itemId)
-    {
-        string itemName = ItemCache.Cache[itemId];
-        TreeNode itemNode = new($"{itemId}: {itemName}");
-        itemNode.Name = itemId.ToString();
-        return itemNode;
-    }
-
-    public static async Task AddDropGroupNode(DropRepository dropRepository, TreeNode parentNode, int dropGroupId, string dropName)
+    public static async Task AddDropGroupNode(
+        DropRepository dropRepository,
+        TreeNodeCollection parentCollection,
+        int dropGroupId,
+        string dropName,
+        ContextMenuStrip? contextMenu = null)
     {
         TreeNode groupNode = new(dropName);
-        parentNode.Nodes.Add(groupNode);
+        parentCollection.Add(groupNode);
         groupNode.Tag = dropGroupId;
         groupNode.Name = dropGroupId.ToString();
+
+        if (contextMenu != null)
+            groupNode.ContextMenuStrip = contextMenu;
 
         Drop? dropGroup = await dropRepository.GetGroupById(dropGroupId);
         if (dropGroup == null)
@@ -52,55 +59,60 @@ public static class Util
             int dropId = dropGroup.DropItemIds[i];
 
             if (dropId > 0)
-                AddItemNode(groupNode, dropId);
+                AddItemNode(groupNode.Nodes, dropId, contextMenu);
 
             else if (dropId < 0)
-                await AddDropGroupNode(dropRepository, groupNode, dropId, dropGroup.ItemNames[i]);
+                await AddDropGroupNode(dropRepository, groupNode.Nodes, dropId, dropGroup.ItemNames[i], contextMenu);
 
             else
                 groupNode.Nodes.Add(new TreeNode("Empty slot"));
         }
     }
 
-    public static async Task<TreeNode> CreateDropGroupNode(DropRepository dropRepository, int dropGroupId, string dropName)
+    public static TreeNode[] FindByName(
+        this TreeNodeCollection treeNodeCollectionToLookIn,
+        string key,
+        bool searchAllChildren)
     {
-        Drop? dropGroup = await dropRepository.GetGroupById(dropGroupId);
-        if (dropGroup == null)
-            return new TreeNode("No drops found");
+        List<TreeNode> foundNodes = FindInternal(key, searchAllChildren, treeNodeCollectionToLookIn, new List<TreeNode>());
 
-        TreeNode groupNode = new(dropName);
-        groupNode.Tag = dropGroupId;
-        groupNode.Name = dropGroupId.ToString();
-
-        for (int i = 0; i < 10; i++)
-        {
-            int dropId = dropGroup.DropItemIds[i];
-
-            if (dropId > 0)
-                AddItemNode(groupNode, dropId);
-
-            else if (dropId < 0)
-                await AddDropGroupNode(dropRepository, groupNode, dropId, dropGroup.ItemNames[i]);
-
-            else
-                groupNode.Nodes.Add(new TreeNode("Empty slot"));
-        }
-
-        return groupNode;
+        return foundNodes.ToArray();
     }
 
-    public static TreeNode[] FindByName(this TreeNodeCollection collection, string name)
+    private static List<TreeNode> FindInternal(
+        string key,
+        bool searchAllChildren,
+        TreeNodeCollection treeNodeCollectionToLookIn,
+        List<TreeNode> foundTreeNodes)
     {
-        List<TreeNode> foundNodes = [];
-
-        for (int i = 0; i < collection.Count; i++)
+        for (int i = 0; i < treeNodeCollectionToLookIn.Count; i++)
         {
-            if (collection[i].Name == name)
+            if (treeNodeCollectionToLookIn[i] is null)
+                continue;
+
+            if (treeNodeCollectionToLookIn[i].Name == key)
             {
-                foundNodes.Add(collection[i]);
+                foundTreeNodes.Add(treeNodeCollectionToLookIn[i]);
             }
         }
 
-        return foundNodes.ToArray();
+        if (searchAllChildren)
+        {
+            for (int i = 0; i < treeNodeCollectionToLookIn.Count; i++)
+            {
+                if (treeNodeCollectionToLookIn[i] is null)
+                {
+                    continue;
+                }
+
+                if ((treeNodeCollectionToLookIn[i].Nodes is not null) && treeNodeCollectionToLookIn[i].Nodes.Count > 0)
+                {
+                    // If it has a valid child collection, append those results to our collection.
+                    foundTreeNodes = FindInternal(key, searchAllChildren, treeNodeCollectionToLookIn[i].Nodes, foundTreeNodes);
+                }
+            }
+        }
+
+        return foundTreeNodes;
     }
 }

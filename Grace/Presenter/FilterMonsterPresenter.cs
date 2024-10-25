@@ -1,5 +1,5 @@
 ﻿using Grace.Cache;
-using Grace.Event;
+using Grace.Event.Monster;
 using Grace.Model;
 using Grace.Model.Repository;
 using Grace.View;
@@ -8,11 +8,9 @@ namespace Grace.Presenter;
 
 public class FilterMonsterPresenter(
     FilterView filterView,
-    MonsterView monsterView,
     MonsterRepository monsterRepository)
 {
     private readonly FilterView _filterView = filterView;
-    private readonly MonsterView _monsterView = monsterView;
     private readonly MonsterRepository _monsterRepository = monsterRepository;
 
     public async Task<List<Monster>?> OnShowView(MonsterFilterType filterType)
@@ -61,9 +59,6 @@ public class FilterMonsterPresenter(
                     filterResult = await _monsterRepository.GetByReferenceToItemId(itemId);
                 break;
         }
-
-        if (_monsterView.HideMonstersWithoutTable)
-            filterResult = filterResult.Where(v => v.DropTableId != 0).ToList();
 
         return filterResult;
     }

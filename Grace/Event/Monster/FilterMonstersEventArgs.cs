@@ -1,4 +1,4 @@
-﻿namespace Grace.Event;
+﻿namespace Grace.Event.Monster;
 
 public class FilterMonstersEventArgs(MonsterFilterType filterType) : EventArgs
 {

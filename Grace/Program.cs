@@ -34,6 +34,7 @@ internal static class Program
             .AddSingleton<FilterDropGroupsView>()
             .AddSingleton<RenameView>()
             .AddSingleton<UpdateWarningView>()
+            .AddSingleton<References>()
             .AddSingleton<MainPresenter>()
             .AddSingleton<MonsterPresenter>()
             .AddSingleton<DropGroupPresenter>()

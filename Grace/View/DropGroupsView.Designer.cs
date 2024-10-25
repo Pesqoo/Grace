@@ -63,6 +63,12 @@ partial class DropGroupsView
         btn_Save = new Button();
         upDown_DropMinCount10 = new NumericUpDown();
         textBox_DropName10 = new TextBox();
+        contextMenuStrip_DropInfo = new ContextMenuStrip(components);
+        toolStripMenuItem_InfoRemove = new ToolStripMenuItem();
+        toolStripMenuItem_InfoSetItem = new ToolStripMenuItem();
+        toolStripMenuItem_InfoSetDropGroup = new ToolStripMenuItem();
+        toolStripMenuItem_InfoRename = new ToolStripMenuItem();
+        toolStripMenuItem_InfoViewReferences = new ToolStripMenuItem();
         label_Item9 = new Label();
         textBox_DropChance9 = new MaskedTextBox();
         upDown_DropMaxCount9 = new NumericUpDown();
@@ -113,11 +119,12 @@ partial class DropGroupsView
         upDown_DropMinCount1 = new NumericUpDown();
         textBox_DropName1 = new TextBox();
         progressBar = new ProgressBar();
-        contextMenuStrip_EditDrop = new ContextMenuStrip(components);
-        toolStripMenuItem_Remove = new ToolStripMenuItem();
-        toolStripMenuItem_SetItem = new ToolStripMenuItem();
-        toolStripMenuItem_SetDropGroup = new ToolStripMenuItem();
-        toolStripMenuItem_Rename = new ToolStripMenuItem();
+        contextMenuStrip_TreeViewItem = new ContextMenuStrip(components);
+        toolStripMenuItem_TreeViewRename = new ToolStripMenuItem();
+        toolStripMenuItem_TreeViewViewReferences = new ToolStripMenuItem();
+        contextMenuStrip_DataGridItem = new ContextMenuStrip(components);
+        toolStripMenuItem_DataGridRename = new ToolStripMenuItem();
+        toolStripMenuItem_DataGridViewReferences = new ToolStripMenuItem();
         groupBox_DropGroupTree.SuspendLayout();
         groupBox_DropGroups.SuspendLayout();
         ((System.ComponentModel.ISupportInitialize)dropGroupDataGrid).BeginInit();
@@ -125,6 +132,7 @@ partial class DropGroupsView
         groupBox_DropGroupInfo.SuspendLayout();
         ((System.ComponentModel.ISupportInitialize)upDown_DropMaxCount10).BeginInit();
         ((System.ComponentModel.ISupportInitialize)upDown_DropMinCount10).BeginInit();
+        contextMenuStrip_DropInfo.SuspendLayout();
         ((System.ComponentModel.ISupportInitialize)upDown_DropMaxCount9).BeginInit();
         ((System.ComponentModel.ISupportInitialize)upDown_DropMinCount9).BeginInit();
         ((System.ComponentModel.ISupportInitialize)upDown_DropMaxCount8).BeginInit();
@@ -143,7 +151,8 @@ partial class DropGroupsView
         ((System.ComponentModel.ISupportInitialize)upDown_DropMinCount2).BeginInit();
         ((System.ComponentModel.ISupportInitialize)upDown_DropMaxCount1).BeginInit();
         ((System.ComponentModel.ISupportInitialize)upDown_DropMinCount1).BeginInit();
-        contextMenuStrip_EditDrop.SuspendLayout();
+        contextMenuStrip_TreeViewItem.SuspendLayout();
+        contextMenuStrip_DataGridItem.SuspendLayout();
         SuspendLayout();
         // 
         // btn_ReloadData
@@ -222,6 +231,7 @@ partial class DropGroupsView
         dropGroupDataGrid.ColumnHeadersBorderStyle = DataGridViewHeaderBorderStyle.None;
         dropGroupDataGrid.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
         dropGroupDataGrid.Columns.AddRange(new DataGridViewColumn[] { cDropGroupId, cAlias });
+        dropGroupDataGrid.ContextMenuStrip = contextMenuStrip_DataGridItem;
         dropGroupDataGrid.Location = new Point(6, 22);
         dropGroupDataGrid.MultiSelect = false;
         dropGroupDataGrid.Name = "dropGroupDataGrid";
@@ -461,13 +471,54 @@ partial class DropGroupsView
         // 
         // textBox_DropName10
         // 
-        textBox_DropName10.ContextMenuStrip = contextMenuStrip_EditDrop;
+        textBox_DropName10.ContextMenuStrip = contextMenuStrip_DropInfo;
         textBox_DropName10.Location = new Point(7, 451);
         textBox_DropName10.Name = "textBox_DropName10";
         textBox_DropName10.ReadOnly = true;
         textBox_DropName10.Size = new Size(258, 23);
         textBox_DropName10.TabIndex = 63;
         textBox_DropName10.Tag = "itemName";
+        // 
+        // contextMenuStrip_DropInfo
+        // 
+        contextMenuStrip_DropInfo.Items.AddRange(new ToolStripItem[] { toolStripMenuItem_InfoRemove, toolStripMenuItem_InfoSetItem, toolStripMenuItem_InfoSetDropGroup, toolStripMenuItem_InfoRename, toolStripMenuItem_InfoViewReferences });
+        contextMenuStrip_DropInfo.Name = "contextMenuStrip_EditDrop";
+        contextMenuStrip_DropInfo.Size = new Size(160, 114);
+        // 
+        // toolStripMenuItem_InfoRemove
+        // 
+        toolStripMenuItem_InfoRemove.Enabled = false;
+        toolStripMenuItem_InfoRemove.Name = "toolStripMenuItem_InfoRemove";
+        toolStripMenuItem_InfoRemove.Size = new Size(159, 22);
+        toolStripMenuItem_InfoRemove.Text = "Remove";
+        // 
+        // toolStripMenuItem_InfoSetItem
+        // 
+        toolStripMenuItem_InfoSetItem.Enabled = false;
+        toolStripMenuItem_InfoSetItem.Name = "toolStripMenuItem_InfoSetItem";
+        toolStripMenuItem_InfoSetItem.Size = new Size(159, 22);
+        toolStripMenuItem_InfoSetItem.Text = "Set Item";
+        // 
+        // toolStripMenuItem_InfoSetDropGroup
+        // 
+        toolStripMenuItem_InfoSetDropGroup.Enabled = false;
+        toolStripMenuItem_InfoSetDropGroup.Name = "toolStripMenuItem_InfoSetDropGroup";
+        toolStripMenuItem_InfoSetDropGroup.Size = new Size(159, 22);
+        toolStripMenuItem_InfoSetDropGroup.Text = "Set DropGroup";
+        // 
+        // toolStripMenuItem_InfoRename
+        // 
+        toolStripMenuItem_InfoRename.Enabled = false;
+        toolStripMenuItem_InfoRename.Name = "toolStripMenuItem_InfoRename";
+        toolStripMenuItem_InfoRename.Size = new Size(159, 22);
+        toolStripMenuItem_InfoRename.Text = "Rename";
+        // 
+        // toolStripMenuItem_InfoViewReferences
+        // 
+        toolStripMenuItem_InfoViewReferences.Enabled = false;
+        toolStripMenuItem_InfoViewReferences.Name = "toolStripMenuItem_InfoViewReferences";
+        toolStripMenuItem_InfoViewReferences.Size = new Size(159, 22);
+        toolStripMenuItem_InfoViewReferences.Text = "View References";
         // 
         // label_Item9
         // 
@@ -508,7 +559,7 @@ partial class DropGroupsView
         // 
         // textBox_DropName9
         // 
-        textBox_DropName9.ContextMenuStrip = contextMenuStrip_EditDrop;
+        textBox_DropName9.ContextMenuStrip = contextMenuStrip_DropInfo;
         textBox_DropName9.Location = new Point(7, 407);
         textBox_DropName9.Name = "textBox_DropName9";
         textBox_DropName9.ReadOnly = true;
@@ -555,7 +606,7 @@ partial class DropGroupsView
         // 
         // textBox_DropName8
         // 
-        textBox_DropName8.ContextMenuStrip = contextMenuStrip_EditDrop;
+        textBox_DropName8.ContextMenuStrip = contextMenuStrip_DropInfo;
         textBox_DropName8.Location = new Point(7, 363);
         textBox_DropName8.Name = "textBox_DropName8";
         textBox_DropName8.ReadOnly = true;
@@ -602,7 +653,7 @@ partial class DropGroupsView
         // 
         // textBox_DropName7
         // 
-        textBox_DropName7.ContextMenuStrip = contextMenuStrip_EditDrop;
+        textBox_DropName7.ContextMenuStrip = contextMenuStrip_DropInfo;
         textBox_DropName7.Location = new Point(7, 319);
         textBox_DropName7.Name = "textBox_DropName7";
         textBox_DropName7.ReadOnly = true;
@@ -649,7 +700,7 @@ partial class DropGroupsView
         // 
         // textBox_DropName6
         // 
-        textBox_DropName6.ContextMenuStrip = contextMenuStrip_EditDrop;
+        textBox_DropName6.ContextMenuStrip = contextMenuStrip_DropInfo;
         textBox_DropName6.Location = new Point(7, 275);
         textBox_DropName6.Name = "textBox_DropName6";
         textBox_DropName6.ReadOnly = true;
@@ -696,7 +747,7 @@ partial class DropGroupsView
         // 
         // textBox_DropName5
         // 
-        textBox_DropName5.ContextMenuStrip = contextMenuStrip_EditDrop;
+        textBox_DropName5.ContextMenuStrip = contextMenuStrip_DropInfo;
         textBox_DropName5.Location = new Point(7, 231);
         textBox_DropName5.Name = "textBox_DropName5";
         textBox_DropName5.ReadOnly = true;
@@ -743,7 +794,7 @@ partial class DropGroupsView
         // 
         // textBox_DropName4
         // 
-        textBox_DropName4.ContextMenuStrip = contextMenuStrip_EditDrop;
+        textBox_DropName4.ContextMenuStrip = contextMenuStrip_DropInfo;
         textBox_DropName4.Location = new Point(7, 187);
         textBox_DropName4.Name = "textBox_DropName4";
         textBox_DropName4.ReadOnly = true;
@@ -790,7 +841,7 @@ partial class DropGroupsView
         // 
         // textBox_DropName3
         // 
-        textBox_DropName3.ContextMenuStrip = contextMenuStrip_EditDrop;
+        textBox_DropName3.ContextMenuStrip = contextMenuStrip_DropInfo;
         textBox_DropName3.Location = new Point(7, 143);
         textBox_DropName3.Name = "textBox_DropName3";
         textBox_DropName3.ReadOnly = true;
@@ -837,7 +888,7 @@ partial class DropGroupsView
         // 
         // textBox_DropName2
         // 
-        textBox_DropName2.ContextMenuStrip = contextMenuStrip_EditDrop;
+        textBox_DropName2.ContextMenuStrip = contextMenuStrip_DropInfo;
         textBox_DropName2.Location = new Point(7, 99);
         textBox_DropName2.Name = "textBox_DropName2";
         textBox_DropName2.ReadOnly = true;
@@ -920,7 +971,7 @@ partial class DropGroupsView
         // 
         // textBox_DropName1
         // 
-        textBox_DropName1.ContextMenuStrip = contextMenuStrip_EditDrop;
+        textBox_DropName1.ContextMenuStrip = contextMenuStrip_DropInfo;
         textBox_DropName1.Location = new Point(7, 55);
         textBox_DropName1.Name = "textBox_DropName1";
         textBox_DropName1.ReadOnly = true;
@@ -939,39 +990,41 @@ partial class DropGroupsView
         progressBar.TabIndex = 17;
         progressBar.Visible = false;
         // 
-        // contextMenuStrip_EditDrop
+        // contextMenuStrip_TreeViewItem
         // 
-        contextMenuStrip_EditDrop.Items.AddRange(new ToolStripItem[] { toolStripMenuItem_Remove, toolStripMenuItem_SetItem, toolStripMenuItem_SetDropGroup, toolStripMenuItem_Rename });
-        contextMenuStrip_EditDrop.Name = "contextMenuStrip_EditDrop";
-        contextMenuStrip_EditDrop.Size = new Size(153, 92);
+        contextMenuStrip_TreeViewItem.Items.AddRange(new ToolStripItem[] { toolStripMenuItem_TreeViewRename, toolStripMenuItem_TreeViewViewReferences });
+        contextMenuStrip_TreeViewItem.Name = "contextMenuStrip_Item";
+        contextMenuStrip_TreeViewItem.Size = new Size(160, 48);
         // 
-        // toolStripMenuItem_Remove
+        // toolStripMenuItem_TreeViewRename
         // 
-        toolStripMenuItem_Remove.Enabled = false;
-        toolStripMenuItem_Remove.Name = "toolStripMenuItem_Remove";
-        toolStripMenuItem_Remove.Size = new Size(152, 22);
-        toolStripMenuItem_Remove.Text = "Remove";
+        toolStripMenuItem_TreeViewRename.Name = "toolStripMenuItem_TreeViewRename";
+        toolStripMenuItem_TreeViewRename.Size = new Size(159, 22);
+        toolStripMenuItem_TreeViewRename.Text = "Rename";
         // 
-        // toolStripMenuItem_SetItem
+        // toolStripMenuItem_TreeViewViewReferences
         // 
-        toolStripMenuItem_SetItem.Enabled = false;
-        toolStripMenuItem_SetItem.Name = "toolStripMenuItem_SetItem";
-        toolStripMenuItem_SetItem.Size = new Size(152, 22);
-        toolStripMenuItem_SetItem.Text = "Set Item";
+        toolStripMenuItem_TreeViewViewReferences.Name = "toolStripMenuItem_TreeViewViewReferences";
+        toolStripMenuItem_TreeViewViewReferences.Size = new Size(159, 22);
+        toolStripMenuItem_TreeViewViewReferences.Text = "View References";
         // 
-        // toolStripMenuItem_SetDropGroup
+        // contextMenuStrip_DataGridItem
         // 
-        toolStripMenuItem_SetDropGroup.Enabled = false;
-        toolStripMenuItem_SetDropGroup.Name = "toolStripMenuItem_SetDropGroup";
-        toolStripMenuItem_SetDropGroup.Size = new Size(152, 22);
-        toolStripMenuItem_SetDropGroup.Text = "Set DropGroup";
+        contextMenuStrip_DataGridItem.Items.AddRange(new ToolStripItem[] { toolStripMenuItem_DataGridRename, toolStripMenuItem_DataGridViewReferences });
+        contextMenuStrip_DataGridItem.Name = "contextMenuStrip_Item";
+        contextMenuStrip_DataGridItem.Size = new Size(160, 48);
         // 
-        // toolStripMenuItem_Rename
+        // toolStripMenuItem_DataGridRename
         // 
-        toolStripMenuItem_Rename.Enabled = false;
-        toolStripMenuItem_Rename.Name = "toolStripMenuItem_Rename";
-        toolStripMenuItem_Rename.Size = new Size(152, 22);
-        toolStripMenuItem_Rename.Text = "Rename";
+        toolStripMenuItem_DataGridRename.Name = "toolStripMenuItem_DataGridRename";
+        toolStripMenuItem_DataGridRename.Size = new Size(159, 22);
+        toolStripMenuItem_DataGridRename.Text = "Rename";
+        // 
+        // toolStripMenuItem_DataGridViewReferences
+        // 
+        toolStripMenuItem_DataGridViewReferences.Name = "toolStripMenuItem_DataGridViewReferences";
+        toolStripMenuItem_DataGridViewReferences.Size = new Size(159, 22);
+        toolStripMenuItem_DataGridViewReferences.Text = "View References";
         // 
         // DropGroupsView
         // 
@@ -998,6 +1051,7 @@ partial class DropGroupsView
         groupBox_DropGroupInfo.PerformLayout();
         ((System.ComponentModel.ISupportInitialize)upDown_DropMaxCount10).EndInit();
         ((System.ComponentModel.ISupportInitialize)upDown_DropMinCount10).EndInit();
+        contextMenuStrip_DropInfo.ResumeLayout(false);
         ((System.ComponentModel.ISupportInitialize)upDown_DropMaxCount9).EndInit();
         ((System.ComponentModel.ISupportInitialize)upDown_DropMinCount9).EndInit();
         ((System.ComponentModel.ISupportInitialize)upDown_DropMaxCount8).EndInit();
@@ -1016,7 +1070,8 @@ partial class DropGroupsView
         ((System.ComponentModel.ISupportInitialize)upDown_DropMinCount2).EndInit();
         ((System.ComponentModel.ISupportInitialize)upDown_DropMaxCount1).EndInit();
         ((System.ComponentModel.ISupportInitialize)upDown_DropMinCount1).EndInit();
-        contextMenuStrip_EditDrop.ResumeLayout(false);
+        contextMenuStrip_TreeViewItem.ResumeLayout(false);
+        contextMenuStrip_DataGridItem.ResumeLayout(false);
         ResumeLayout(false);
     }
 
@@ -1096,9 +1151,16 @@ partial class DropGroupsView
     private ProgressBar progressBar;
     private DataGridViewTextBoxColumn cDropGroupId;
     private DataGridViewTextBoxColumn cAlias;
-    private ContextMenuStrip contextMenuStrip_EditDrop;
-    private ToolStripMenuItem toolStripMenuItem_Remove;
-    private ToolStripMenuItem toolStripMenuItem_SetItem;
-    private ToolStripMenuItem toolStripMenuItem_SetDropGroup;
-    private ToolStripMenuItem toolStripMenuItem_Rename;
+    public ContextMenuStrip contextMenuStrip_DropInfo;
+    private ToolStripMenuItem toolStripMenuItem_InfoRemove;
+    private ToolStripMenuItem toolStripMenuItem_InfoSetItem;
+    private ToolStripMenuItem toolStripMenuItem_InfoSetDropGroup;
+    private ToolStripMenuItem toolStripMenuItem_InfoRename;
+    private ToolStripMenuItem toolStripMenuItem_InfoViewReferences;
+    public ContextMenuStrip contextMenuStrip_TreeViewItem;
+    private ToolStripMenuItem toolStripMenuItem_TreeViewRename;
+    private ToolStripMenuItem toolStripMenuItem_TreeViewViewReferences;
+    public ContextMenuStrip contextMenuStrip_DataGridItem;
+    private ToolStripMenuItem toolStripMenuItem_DataGridRename;
+    private ToolStripMenuItem toolStripMenuItem_DataGridViewReferences;
 }

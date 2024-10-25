@@ -31,17 +31,6 @@ public class ItemCache
             Cache.Add(id, itemName);
         }
 
-        DataTable dropGroups = await _dbManager.ExecuteQueryAsync($@"
-            SELECT id
-            FROM DropGroupResource"
-        );
-
-        foreach (DataRow row in dropGroups.Rows)
-        {
-            int id = row.Field<int>("id");
-            Cache[id] = string.Empty;
-        }
-
         string json = File.ReadAllText("dropGroupNames.json");
         var dropGroupNames = JsonSerializer.Deserialize<Dictionary<int, string>>(json);
         if (dropGroupNames != null)

@@ -1,4 +1,4 @@
-﻿using Grace.Event;
+﻿using Grace.Event.Monster;
 
 namespace Grace.View;
 

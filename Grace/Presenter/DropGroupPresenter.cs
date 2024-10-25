@@ -1,5 +1,5 @@
 ﻿using Grace.Cache;
-using Grace.Event;
+using Grace.Event.ContextMenu;
 using Grace.Event.DropGroup;
 using Grace.Model;
 using Grace.Model.Repository;
@@ -11,6 +11,7 @@ public class DropGroupPresenter
 {
     private readonly DropGroupsView _dropGroupView;
     private readonly UpdateWarningView _updateWarningView;
+    private readonly References _referencesView;
     private readonly FilterDropGroupsPresenter _filterDropGroupsPresenter;
     private readonly SetItemPresenter _setItemPresenter;
     private readonly SetDropGroupPresenter _setDropGroupPresenter;
@@ -19,11 +20,11 @@ public class DropGroupPresenter
     private readonly DropGroupCache _dropGroupCache;
     private readonly DropRepository _dropRepository;
     private readonly MonsterRepository _monsterRepository;
-    private List<Drop> _dropGroups = [];
 
     public DropGroupPresenter(
         DropGroupsView dropGroupView,
         UpdateWarningView updateWarningView,
+        References referencesView,
         FilterDropGroupsPresenter filterDropGroupsPresenter,
         SetItemPresenter setItemPresenter,
         SetDropGroupPresenter setDropGroupPresenter,
@@ -35,6 +36,7 @@ public class DropGroupPresenter
     {
         _dropGroupView = dropGroupView;
         _updateWarningView = updateWarningView;
+        _referencesView = referencesView;
         _filterDropGroupsPresenter = filterDropGroupsPresenter;
         _setItemPresenter = setItemPresenter;
         _setDropGroupPresenter = setDropGroupPresenter;
@@ -47,73 +49,78 @@ public class DropGroupPresenter
         _dropGroupView.Load += async (sender, e) => await DropGroupView_LoadDropGroups(sender, new LoadDropGroupsEventArgs(false));
 
         _dropGroupView.LoadDropGroupsEventHandler += async (sender, e) => await DropGroupView_LoadDropGroups(sender, e);
-        _dropGroupView.SelectDropGroupEventHandler += async (sender, e) => await DropGroupView_SelectDropGroup(sender, e);
+        _dropGroupView.SelectDropGroupEventHandler += async (sender, e) => await UpdateDropTreeView();
         _dropGroupView.FilterDropGroupsEventHandler += async (sender, e) => await DropGroupView_FilterDropGroups(sender, e);
         _dropGroupView.SelectDropEventHandler += async (sender, e) => await DropGroupView_SelectNestedDropGroup(sender, e);
         _dropGroupView.SaveDropEventHandler += async (sender, e) => await DropGroupView_UpdateDrop(sender, e);
+
         _dropGroupView.RemoveItemEventHandler += DropGroupView_RemoveDrop;
         _dropGroupView.SetItemEventHandler += DropGroupView_SetDropItem;
         _dropGroupView.SetDropGroupEventHandler += DropGroupView_SetDropGroup;
         _dropGroupView.RenameDropGroupEventHandler += DropGroupView_RenameDropGroup;
+        _dropGroupView.ViewReferencesEventHandler += async (sender, e) => await DropGroupView_InfoViewReferences(sender, e);
+
+        // TreeView ContextMenu
+        _dropGroupView.TreeRenameDropGroupEventHandler += DropGroupView_TreeRenameDropGroup;
+        _dropGroupView.TreeViewReferencesEventHandler += async (sender, e) => await DropGroupView_TreeViewReferences(sender, e);
+
+        // DataGrid ContextMenu
+        _dropGroupView.DataGridRenameDropGroupEventHandler += DropGroupView_DataGridRenameDropGroup;
+        _dropGroupView.DataGridViewReferencesEventHandler += async (sender, e) => await DropGroupView_DataGridViewReferences(sender, e);
 
     }
 
     private async Task DropGroupView_LoadDropGroups(object? sender, LoadDropGroupsEventArgs e)
     {
-        if (e.ReloadData)
+        if (e.ReloadCache)
         {
             await _itemCache.Init();
             await _dropGroupCache.Init();
         }
 
-        _dropGroups = DropGroupCache.Cache.Values.ToList();
-        _dropGroupView.SetDropGroupDataSource(_dropGroups);
+        var dropGroups = DropGroupCache.Cache.Values.ToList();
 
-        if (_dropGroups.Count > 0)
-            await DropGroupView_SelectDropGroup(this, new DataGridViewCellEventArgs(0, 0));
+        _dropGroupView.SetDropGroupDataSource(dropGroups);
+        await UpdateDropTreeView();
     }
 
-    private async Task DropGroupView_FilterDropGroups(object? sender, FilterDropGroupsEventArgs e)
+    private async Task DropGroupView_FilterDropGroups(object? sender, Event.DropGroup.FilterDropGroupsEventArgs e)
     {
-        if (e.FilterType == DropGroupFilterType.ALL)
+        List<Drop>? filterResult;
+        if (e.FilterType == Event.DropGroup.DropGroupFilterType.ALL)
         {
-            _dropGroups = DropGroupCache.Cache.Values.ToList();
+            filterResult = DropGroupCache.Cache.Values.ToList();
         }
         else
         {
-            List<Drop>? result = await _filterDropGroupsPresenter.OnShowView(e.FilterType);
-            if (result != null)
-            {
-                _dropGroups = result;
-            }
+            filterResult = await _filterDropGroupsPresenter.OnShowView(e.FilterType);
+            if (filterResult == null)
+                return;
         }
 
-        _dropGroupView.SetDropGroupDataSource(_dropGroups);
-        if (_dropGroups.Count > 0)
-            await DropGroupView_SelectDropGroup(this, new DataGridViewCellEventArgs(0, 0));
-        else
+        _dropGroupView.SetDropGroupDataSource(filterResult);
+        await UpdateDropTreeView();
+    }
+
+    private async Task UpdateDropTreeView()
+    {
+        if (_dropGroupView.SelectedDrop is not Drop drop)
         {
             _dropGroupView.DropTreeView.Nodes.Clear();
             _dropGroupView.CurrentDrop = new();
-        }
-    }
-
-    private async Task DropGroupView_SelectDropGroup(object? sender, DataGridViewCellEventArgs e)
-    {
-        if (e.RowIndex == -1)
             return;
+        }
 
-        var dropGroup = await _dropRepository.GetGroupById(_dropGroups[e.RowIndex].Id);
+        _dropGroupView.CurrentDrop = drop;
+
+        // _dropGroupView.dropGroupDataView.Enabled = false;
+        _dropGroupView.ProgressBar.Visible = true;
+
+        Drop? dropGroup = await _dropRepository.GetGroupById(drop.Id);
+
         if (dropGroup == null)
             return;
 
-        _dropGroupView.CurrentDrop = dropGroup;
-        await UpdateDropTreeView(dropGroup);
-    }
-
-    private async Task UpdateDropTreeView(Drop dropGroup)
-    {
-        _dropGroupView.ProgressBar.Visible = true;
         _dropGroupView.DropTreeView.Nodes.Clear();
         _dropGroupView.DropTreeView.BeginUpdate();
 
@@ -122,21 +129,19 @@ public class DropGroupPresenter
             // DropGroup < 0 < Item
             int dropId = dropGroup.DropItemIds[i];
 
+            // TODO: ContextMenu
             if (dropId > 0)
             {
-                var itemNode = CreateItemNode(dropId);
-                _dropGroupView.DropTreeView.Nodes.Add(itemNode);
+                AddItemNode(_dropGroupView.DropTreeView.Nodes, dropId, _dropGroupView.contextMenuStrip_TreeViewItem);
             }
             else if (dropId < 0)
             {
-                // TODO: if alias is null, an invalid DropGroup was referenced
-                DropGroupCache.Cache.TryGetValue(dropId, out var cachedDropGroup);
-                var alias = cachedDropGroup?.Alias;
-
-                var dropGroupName = $"{dropId}" + (alias != null && alias != string.Empty ? $": {alias}" : string.Empty);
-                var groupNode = await CreateDropGroupNode(_dropRepository, dropId, dropGroupName);
-
-                _dropGroupView.DropTreeView.Nodes.Add(groupNode);
+                await AddDropGroupNode(
+                    _dropRepository,
+                    _dropGroupView.DropTreeView.Nodes,
+                    dropId,
+                    dropGroup.ItemNames[i],
+                    _dropGroupView.contextMenuStrip_TreeViewItem);
             }
             else
             {
@@ -146,16 +151,18 @@ public class DropGroupPresenter
 
         _dropGroupView.DropTreeView.EndUpdate();
         _dropGroupView.ProgressBar.Visible = false;
+        // _dropGroupView.dropGroupDataView.Enabled = true;
     }
 
     private async Task DropGroupView_SelectNestedDropGroup(object? sender, TreeViewEventArgs e)
     {
         if (e.Node?.Tag is not int dropId)
+        {
+            _dropGroupView.CurrentDrop = new();
             return;
+        }
 
-        Drop? dropGroup = await _dropRepository.GetGroupById(dropId);
-
-        if (dropGroup == null)
+        if (!DropGroupCache.Cache.TryGetValue(dropId, out Drop? dropGroup))
         {
             MessageBox.Show("No drop information found for the selected monster.", "Information", MessageBoxButtons.OK, MessageBoxIcon.Information);
             return;
@@ -167,7 +174,6 @@ public class DropGroupPresenter
     private async Task DropGroupView_UpdateDrop(object? sender, EventArgs e)
     {
         Drop drop = _dropGroupView.CurrentDrop;
-        int result;
 
         var affectedMonsters = await _monsterRepository.GetByReferenceToDropGroupId(drop.Id);
 
@@ -180,24 +186,14 @@ public class DropGroupPresenter
                 return;
         }
 
-        if (drop.SubId == -1)
-        {
-            result = await _dropRepository.UpdateGroup(drop);
+        int result = await _dropRepository.UpdateGroup(drop);
 
-            DropGroupCache.Cache[drop.Id] = drop;
-
-            var index = _dropGroups.FindIndex(v => v.Id == drop.Id);
-            if (index == -1)
-                _dropGroups[index] = drop;
-        }
-        else
-            result = await _dropRepository.UpdateTable(drop);
-
-        await UpdateDropTreeView(drop);
+        await UpdateDropTreeView();
         _dropGroupView.ShowResult($"{result} row(s) have been updated.");
     }
 
-    private void DropGroupView_RemoveDrop(object? sender, ContextMenuEventArgs e)
+    #region DropInfo ContextMenu
+    private void DropGroupView_RemoveDrop(object? sender, InfoContextMenuEventArgs e)
     {
         if (e.ItemIndex == -1)
             return;
@@ -211,7 +207,7 @@ public class DropGroupPresenter
         _dropGroupView.CurrentDrop = tempDrop;
     }
 
-    private void DropGroupView_SetDropItem(object? sender, ContextMenuEventArgs e)
+    private void DropGroupView_SetDropItem(object? sender, InfoContextMenuEventArgs e)
     {
         if (e.ItemIndex == -1)
             return;
@@ -227,7 +223,7 @@ public class DropGroupPresenter
         _dropGroupView.CurrentDrop = tempDrop;
     }
 
-    private void DropGroupView_SetDropGroup(object? sender, ContextMenuEventArgs e)
+    private void DropGroupView_SetDropGroup(object? sender, InfoContextMenuEventArgs e)
     {
         if (e.ItemIndex == -1)
             return;
@@ -244,7 +240,7 @@ public class DropGroupPresenter
         _dropGroupView.CurrentDrop = tempDrop;
     }
 
-    private void DropGroupView_RenameDropGroup(object? sender, ContextMenuEventArgs e)
+    private void DropGroupView_RenameDropGroup(object? sender, InfoContextMenuEventArgs e)
     {
         if (e.ItemIndex == -1)
             return;
@@ -259,7 +255,7 @@ public class DropGroupPresenter
         int dropGroupId = _dropGroupView.CurrentDrop.DropItemIds[e.ItemIndex];
         DropGroupCache.AddDropGroupName(dropGroupId, newName);
 
-        var nodes = _dropGroupView.DropTreeView.SelectedNode.Nodes.FindByName(dropGroupId.ToString());
+        var nodes = _dropGroupView.DropTreeView.SelectedNode.Nodes.FindByName(dropGroupId.ToString(), true);
 
         foreach (var node in nodes)
         {
@@ -269,5 +265,82 @@ public class DropGroupPresenter
         Drop tempDrop = _dropGroupView.CurrentDrop;
         tempDrop.ItemNames[e.ItemIndex] = $"{dropGroupId}: {newName}";
         _dropGroupView.CurrentDrop = tempDrop;
+    }
+
+    private async Task DropGroupView_InfoViewReferences(object? sender, InfoContextMenuEventArgs e)
+    {
+        if (e.ItemIndex == -1)
+            return;
+
+        int dropId = _dropGroupView.CurrentDrop.DropItemIds[e.ItemIndex];
+
+        if (dropId == 0)
+            return;
+
+        var affectedMonsters = dropId < 0
+            ? await _monsterRepository.GetByReferenceToDropGroupId(dropId)
+            : await _monsterRepository.GetByReferenceToItemId(dropId);
+
+        _referencesView.SetDataSource(affectedMonsters);
+        _referencesView.ShowDialog();
+    }
+    #endregion
+
+    public void DropGroupView_TreeRenameDropGroup(object? sender, TreeContextMenuEventArgs e)
+    {
+        if (!int.TryParse(e.SelectedNode.Name, out int dropGroupId))
+            return;
+
+        if (_renameDropGroupPresenter.OnShowView() is not string newName)
+            return;
+
+        DropGroupCache.AddDropGroupName(dropGroupId, newName);
+        _dropGroupView.DataGridView.Refresh();
+
+        var nodesToRename = _dropGroupView.DropTreeView.Nodes.FindByName(dropGroupId.ToString(), true);
+        foreach (var node in nodesToRename)
+            node.Text = $"{dropGroupId}: {newName}";
+    }
+
+    private async Task DropGroupView_TreeViewReferences(object? sender, TreeContextMenuEventArgs e)
+    {
+        if (!int.TryParse(e.SelectedNode.Name, out int dropId) || dropId == 0)
+            return;
+
+        var affectedMonsters = dropId < 0
+            ? await _monsterRepository.GetByReferenceToDropGroupId(dropId)
+            : await _monsterRepository.GetByReferenceToItemId(dropId);
+
+        _referencesView.SetDataSource(affectedMonsters);
+        _referencesView.ShowDialog();
+    }
+
+    public void DropGroupView_DataGridRenameDropGroup(object? sender, EventArgs e)
+    {
+        if (_dropGroupView.SelectedDrop is not Drop drop)
+            return;
+
+        if (_renameDropGroupPresenter.OnShowView() is not string newName)
+            return;
+
+        DropGroupCache.AddDropGroupName(drop.Id, newName);
+        _dropGroupView.DataGridView.Refresh();
+
+        var nodesToRename = _dropGroupView.DropTreeView.Nodes.FindByName(drop.Id.ToString(), true);
+        foreach (var node in nodesToRename)
+            node.Text = $"{drop.Id}: {newName}";
+    }
+
+    public async Task DropGroupView_DataGridViewReferences(object? sender, EventArgs e)
+    {
+        if (_dropGroupView.SelectedDrop is not Drop drop)
+            return;
+
+        var affectedMonsters = drop.Id < 0
+            ? await _monsterRepository.GetByReferenceToDropGroupId(drop.Id)
+            : await _monsterRepository.GetByReferenceToItemId(drop.Id);
+
+        _referencesView.SetDataSource(affectedMonsters);
+        _referencesView.ShowDialog();
     }
 }

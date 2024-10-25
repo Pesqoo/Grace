@@ -1,6 +1,6 @@
 ﻿namespace Grace.Event.DropGroup;
 
-public class LoadDropGroupsEventArgs(bool reloadData = false) : EventArgs
+public class LoadDropGroupsEventArgs(bool reloadCache = false) : EventArgs
 {
-    public bool ReloadData { get; set; } = reloadData;
+    public bool ReloadCache { get; set; } = reloadCache;
 }

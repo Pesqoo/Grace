@@ -1,4 +1,5 @@
-﻿using Grace.Event;
+﻿using Grace.Cache;
+using Grace.Event.ContextMenu;
 using Grace.Event.DropGroup;
 using Grace.Model;
 using static Grace.Common.Util;
@@ -10,15 +11,27 @@ namespace Grace.View;
 public partial class DropGroupsView : Form
 {
     public event EventHandler<LoadDropGroupsEventArgs>? LoadDropGroupsEventHandler;
-    public event EventHandler<FilterDropGroupsEventArgs>? FilterDropGroupsEventHandler;
+    public event EventHandler<Event.DropGroup.FilterDropGroupsEventArgs>? FilterDropGroupsEventHandler;
     public event EventHandler? SelectDropGroupEventHandler;
     public event EventHandler<TreeViewEventArgs>? SelectDropEventHandler;
     public event EventHandler? SaveDropEventHandler;
-    public event EventHandler<ContextMenuEventArgs>? RemoveItemEventHandler;
-    public event EventHandler<ContextMenuEventArgs>? SetItemEventHandler;
-    public event EventHandler<ContextMenuEventArgs>? SetDropGroupEventHandler;
-    public event EventHandler<ContextMenuEventArgs>? RenameDropGroupEventHandler;
 
+    // DropInfo ContextMenu
+    public event EventHandler<InfoContextMenuEventArgs>? RemoveItemEventHandler;
+    public event EventHandler<InfoContextMenuEventArgs>? SetItemEventHandler;
+    public event EventHandler<InfoContextMenuEventArgs>? SetDropGroupEventHandler;
+    public event EventHandler<InfoContextMenuEventArgs>? RenameDropGroupEventHandler;
+    public event EventHandler<InfoContextMenuEventArgs>? ViewReferencesEventHandler;
+
+    // TreeView ContextMenu
+    public event EventHandler<TreeContextMenuEventArgs>? TreeRenameDropGroupEventHandler;
+    public event EventHandler<TreeContextMenuEventArgs>? TreeViewReferencesEventHandler;
+
+    // TreeView ContextMenu
+    public event EventHandler? DataGridRenameDropGroupEventHandler;
+    public event EventHandler? DataGridViewReferencesEventHandler;
+
+    public Drop? SelectedDrop => dropGroupDataGrid.CurrentRow?.DataBoundItem as Drop;
     public DataGridView DataGridView { get { return dropGroupDataGrid; } }
     public TreeView DropTreeView { get { return dropTreeView; } }
     private TextBox[] DropNames => GetControlsByName<TextBox>(groupBox_DropGroupInfo, "DropName");
@@ -55,7 +68,24 @@ public partial class DropGroupsView : Form
             double sum = 0.0;
             for (int i = 0; i < 10; i++)
             {
-                DropNames[i].Text = value.ItemNames[i];
+                var dropId = value.DropItemIds[i];
+                if (dropId > 0)
+                {
+                    DropNames[i].Text = ItemCache.Cache[dropId];
+                }
+                else if (dropId < 0)
+                {
+                    DropGroupCache.Cache.TryGetValue(dropId, out Drop? dropGroup);
+                    var alias = dropGroup?.Alias;
+
+                    DropNames[i].Text = $"{dropId}" + (alias != null && alias != string.Empty ? $": {alias}" : string.Empty);
+                }
+                else
+                {
+                    DropNames[i].Text = value.ItemNames[i];
+                }
+
+                //DropNames[i].Text = $"{value.ItemNames[i]}, {DropGroupCache.Cache[value.DropItemIds[i]]}";
                 DropMinCounts[i].Value = value.DropMinCounts[i];
                 DropMaxCounts[i].Value = value.DropMaxCounts[i];
                 DropChances[i].Text = value.DropPercentages[i].ToString("0.00000000");
@@ -84,18 +114,51 @@ public partial class DropGroupsView : Form
     private void InitializeEvent()
     {
         btn_ReloadData.Click += (sender, e) => { LoadDropGroupsEventHandler?.Invoke(sender, new LoadDropGroupsEventArgs(true)); };
-        btn_Filter.Click += (sender, e) => { FilterDropGroupsEventHandler?.Invoke(sender, new FilterDropGroupsEventArgs(GetFilterType())); };
-        dropGroupDataGrid.CellClick += (sender, e) => { SelectDropGroupEventHandler?.Invoke(sender, e); };
+        btn_Filter.Click += (sender, e) => { FilterDropGroupsEventHandler?.Invoke(sender, new Event.DropGroup.FilterDropGroupsEventArgs(GetFilterType())); };
+        // dropGroupDataGrid.CellClick += (sender, e) => { SelectDropGroupEventHandler?.Invoke(sender, e); };
         dropTreeView.AfterSelect += (sender, e) => { SelectDropEventHandler?.Invoke(sender, e); };
         btn_Save.Click += (sender, e) => { SaveDropEventHandler?.Invoke(sender, e); };
 
         foreach (var textBox in DropNames)
             textBox.MouseDown += ShowDropInfoContextMenu;
 
-        toolStripMenuItem_Remove.Click += (sender, e) => RemoveItemEventHandler?.Invoke(sender, new ContextMenuEventArgs(ContextMenuEventType.REMOVE, GetItemIndex(sender)));
-        toolStripMenuItem_SetItem.Click += (sender, e) => SetItemEventHandler?.Invoke(sender, new ContextMenuEventArgs(ContextMenuEventType.SET_ITEM, GetItemIndex(sender)));
-        toolStripMenuItem_SetDropGroup.Click += (sender, e) => SetDropGroupEventHandler?.Invoke(sender, new ContextMenuEventArgs(ContextMenuEventType.SET_DROPGROUP, GetItemIndex(sender)));
-        toolStripMenuItem_Rename.Click += (sender, e) => RenameDropGroupEventHandler?.Invoke(sender, new ContextMenuEventArgs(ContextMenuEventType.RENAME, GetItemIndex(sender)));
+        toolStripMenuItem_InfoRemove.Click += (sender, e) => RemoveItemEventHandler?.Invoke(sender, new InfoContextMenuEventArgs(GetItemIndex(sender)));
+        toolStripMenuItem_InfoSetItem.Click += (sender, e) => SetItemEventHandler?.Invoke(sender, new InfoContextMenuEventArgs(GetItemIndex(sender)));
+        toolStripMenuItem_InfoSetDropGroup.Click += (sender, e) => SetDropGroupEventHandler?.Invoke(sender, new InfoContextMenuEventArgs(GetItemIndex(sender)));
+        toolStripMenuItem_InfoRename.Click += (sender, e) => RenameDropGroupEventHandler?.Invoke(sender, new InfoContextMenuEventArgs(GetItemIndex(sender)));
+        toolStripMenuItem_InfoViewReferences.Click += (sender, e) => ViewReferencesEventHandler?.Invoke(sender, new InfoContextMenuEventArgs(GetItemIndex(sender)));
+
+        // TreeView ContextMenu
+        toolStripMenuItem_TreeViewRename.Click += (sender, e) => TreeRenameDropGroupEventHandler?.Invoke(sender, new TreeContextMenuEventArgs(dropTreeView.SelectedNode));
+        toolStripMenuItem_TreeViewViewReferences.Click += (sender, e) => TreeViewReferencesEventHandler?.Invoke(sender, new TreeContextMenuEventArgs(dropTreeView.SelectedNode));
+
+        // set SelectedNode on right click
+        dropTreeView.NodeMouseClick += SetSelectedNode;
+        contextMenuStrip_TreeViewItem.Opening += HandleTreeNodeContextMenu;
+
+        // DataGrid ContextMenu
+        dropGroupDataGrid.CellMouseDown += DropGroupDataGrid_CellMouseClick;
+        toolStripMenuItem_DataGridRename.Click += (sender, e) => { DataGridRenameDropGroupEventHandler?.Invoke(sender, e); };
+        toolStripMenuItem_DataGridViewReferences.Click += (sender, e) => { DataGridViewReferencesEventHandler?.Invoke(sender, e); };
+    }
+
+    private void DropGroupDataGrid_CellMouseClick(object? sender, DataGridViewCellMouseEventArgs e)
+    {
+        if (e.RowIndex >= 0)
+        {
+            dropGroupDataGrid.ClearSelection();
+            dropGroupDataGrid.Rows[e.RowIndex].Cells[0].Selected = true;
+
+            toolStripMenuItem_DataGridRename.Enabled = true;
+            toolStripMenuItem_DataGridViewReferences.Enabled = true;
+        }
+        else
+        {
+            toolStripMenuItem_DataGridRename.Enabled = false;
+            toolStripMenuItem_DataGridViewReferences.Enabled = false;
+        }
+
+        SelectDropGroupEventHandler?.Invoke(sender, e);
     }
 
     public void AttachToParent(Control parent)
@@ -128,7 +191,7 @@ public partial class DropGroupsView : Form
         dropGroupDataGrid.DataSource = drops;
     }
 
-    private DropGroupFilterType GetFilterType()
+    private Event.DropGroup.DropGroupFilterType GetFilterType()
     {
         int checkedIndex = -1;
         foreach (RadioButton radioButton in groupBox_Filter.Controls.OfType<RadioButton>())
@@ -140,7 +203,7 @@ public partial class DropGroupsView : Form
             }
         }
 
-        return (DropGroupFilterType)checkedIndex;
+        return (Event.DropGroup.DropGroupFilterType)checkedIndex;
     }
 
     private void ShowDropInfoContextMenu(object? sender, MouseEventArgs e)
@@ -164,6 +227,7 @@ public partial class DropGroupsView : Form
             textBox.ContextMenuStrip.Items[1].Enabled = true;
             textBox.ContextMenuStrip.Items[2].Enabled = true;
             textBox.ContextMenuStrip.Items[3].Enabled = false;
+            textBox.ContextMenuStrip.Items[4].Enabled = false;
         }
         else if (dropId > 0)
         {
@@ -171,6 +235,7 @@ public partial class DropGroupsView : Form
             textBox.ContextMenuStrip.Items[1].Enabled = true;
             textBox.ContextMenuStrip.Items[2].Enabled = true;
             textBox.ContextMenuStrip.Items[3].Enabled = false;
+            textBox.ContextMenuStrip.Items[4].Enabled = true;
         }
         else if (dropId < 0)
         {
@@ -178,6 +243,39 @@ public partial class DropGroupsView : Form
             textBox.ContextMenuStrip.Items[1].Enabled = true;
             textBox.ContextMenuStrip.Items[2].Enabled = true;
             textBox.ContextMenuStrip.Items[3].Enabled = true;
+            textBox.ContextMenuStrip.Items[3].Enabled = true;
+        }
+    }
+
+    private void SetSelectedNode(object? sender, TreeNodeMouseClickEventArgs e)
+    {
+        dropTreeView.SelectedNode = e.Node;
+    }
+
+    private void HandleTreeNodeContextMenu(object? sender, EventArgs e)
+    {
+        TreeNode selectedNode = dropTreeView.SelectedNode;
+
+        if (selectedNode == null)
+            return;
+
+        if (!int.TryParse(selectedNode.Name, out int dropId))
+            return;
+
+        if (dropId == 0)
+        {
+            toolStripMenuItem_TreeViewRename.Enabled = false;
+            toolStripMenuItem_TreeViewViewReferences.Enabled = false;
+        }
+        else if (dropId > 0)
+        {
+            toolStripMenuItem_TreeViewRename.Enabled = false;
+            toolStripMenuItem_TreeViewViewReferences.Enabled = true;
+        }
+        else if (dropId < 0)
+        {
+            toolStripMenuItem_TreeViewRename.Enabled = true;
+            toolStripMenuItem_TreeViewViewReferences.Enabled = true;
         }
     }
 

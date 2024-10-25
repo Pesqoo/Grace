@@ -1,4 +1,4 @@
-﻿namespace Grace.Event.SetDropGroup;
+﻿namespace Grace.Event.ContextMenu;
 
 public class FilterDropGroupsEventArgs : EventArgs
 {

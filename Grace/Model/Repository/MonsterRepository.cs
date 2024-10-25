@@ -243,6 +243,23 @@ public class MonsterRepository(DBManager _dbManager)
 						mdtr.drop_item_id_08 IN (rdg.id) OR
 						mdtr.drop_item_id_09 IN (rdg.id)
 				)
+
+				UNION ALL
+
+				SELECT mdtr.id
+				FROM MonsterDropTableResource mdtr
+				WHERE {itemId} IN (
+					mdtr.drop_item_id_00, 
+					mdtr.drop_item_id_01, 
+					mdtr.drop_item_id_02, 
+					mdtr.drop_item_id_03, 
+					mdtr.drop_item_id_04, 
+					mdtr.drop_item_id_05, 
+					mdtr.drop_item_id_06, 
+					mdtr.drop_item_id_07, 
+					mdtr.drop_item_id_08, 
+					mdtr.drop_item_id_09
+				)
 			);");
 
         return Monster.FromDataTable(dataTable);

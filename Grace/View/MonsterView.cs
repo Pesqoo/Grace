@@ -1,4 +1,5 @@
-using Grace.Event;
+using Grace.Event.ContextMenu;
+using Grace.Event.Monster;
 using Grace.Model;
 using static Grace.Common.Util;
 using Timer = System.Windows.Forms.Timer;
@@ -9,14 +10,24 @@ public partial class MonsterView : Form
 {
     public event EventHandler<LoadMonstersEventArgs>? LoadMonstersEventHandler;
     public event EventHandler<FilterMonstersEventArgs>? FilterMonstersEventHandler;
-    public event EventHandler<DataGridViewCellEventArgs>? SelectMonsterEventHandler;
+    public event EventHandler? SelectMonsterEventHandler;
     public event EventHandler<TreeViewEventArgs>? SelectDropEventHandler;
     public event EventHandler? SaveDropEventHandler;
-    public event EventHandler<ContextMenuEventArgs>? RemoveItemEventHandler;
-    public event EventHandler<ContextMenuEventArgs>? SetItemEventHandler;
-    public event EventHandler<ContextMenuEventArgs>? SetDropGroupEventHandler;
-    public event EventHandler<ContextMenuEventArgs>? RenameDropGroupEventHandler;
 
+    // DropInfo ContextMenu
+    public event EventHandler<InfoContextMenuEventArgs>? InfoRemoveItemEventHandler;
+    public event EventHandler<InfoContextMenuEventArgs>? InfoSetItemEventHandler;
+    public event EventHandler<InfoContextMenuEventArgs>? InfoSetDropGroupEventHandler;
+    public event EventHandler<InfoContextMenuEventArgs>? InfoRenameDropGroupEventHandler;
+    public event EventHandler<InfoContextMenuEventArgs>? InfoViewReferencesEventHandler;
+
+    // TreeView ContextMenu
+    public event EventHandler<TreeContextMenuEventArgs>? TreeRenameDropGroupEventHandler;
+    public event EventHandler<TreeContextMenuEventArgs>? TreeViewReferencesEventHandler;
+    public event EventHandler? AddSubIdEventHandler;
+    public event EventHandler<TreeContextMenuEventArgs>? DeleteSubIdEventHandler;
+
+    public Monster? SelectedMonster => monsterDataGrid.CurrentRow?.DataBoundItem as Monster;
     public DataGridView MonsterDataGrid => monsterDataGrid;
     public TreeView DropTreeView { get { return dropTreeView; } set { dropTreeView = value; } }
     private TextBox[] DropNames => GetControlsByName<TextBox>(groupBox_DropGroupDetails, "DropName");
@@ -83,19 +94,32 @@ public partial class MonsterView : Form
     {
         btn_ReloadData.Click += (sender, e) => { LoadMonstersEventHandler?.Invoke(sender, new LoadMonstersEventArgs(true)); };
         btn_Filter.Click += (sender, e) => { FilterMonstersEventHandler?.Invoke(sender, new FilterMonstersEventArgs(GetFilterType())); };
+        // monsterDataGrid.CellClick += (sender, e) => { SelectMonsterEventHandler?.Invoke(sender, e); };
         monsterDataGrid.CellClick += (sender, e) => { SelectMonsterEventHandler?.Invoke(sender, e); };
         dropTreeView.AfterSelect += (sender, e) => { SelectDropEventHandler?.Invoke(sender, e); };
         btn_Save.Click += (sender, e) => { SaveDropEventHandler?.Invoke(sender, e); };
 
+        // enable/disable DropInfo ContextMenuItems
         foreach (var textBox in DropNames)
             textBox.MouseDown += ShowDropInfoContextMenu;
 
-        toolStripMenuItem_Remove.Click += (sender, e) => RemoveItemEventHandler?.Invoke(sender, new ContextMenuEventArgs(ContextMenuEventType.REMOVE, GetItemIndex(sender)));
-        toolStripMenuItem_SetItem.Click += (sender, e) => SetItemEventHandler?.Invoke(sender, new ContextMenuEventArgs(ContextMenuEventType.SET_ITEM, GetItemIndex(sender)));
-        toolStripMenuItem_SetDropGroup.Click += (sender, e) => SetDropGroupEventHandler?.Invoke(sender, new ContextMenuEventArgs(ContextMenuEventType.SET_DROPGROUP, GetItemIndex(sender)));
-        toolStripMenuItem_Rename.Click += (sender, e) => RenameDropGroupEventHandler?.Invoke(sender, new ContextMenuEventArgs(ContextMenuEventType.RENAME, GetItemIndex(sender)));
 
-        dropTreeView.NodeMouseClick += ShowDropInfoContextMenuTreeNode;
+        // DropInfo ContextMenu
+        toolStripMenuItem_InfoRemove.Click += (sender, e) => InfoRemoveItemEventHandler?.Invoke(sender, new InfoContextMenuEventArgs(GetItemIndex(sender)));
+        toolStripMenuItem_InfoSetItem.Click += (sender, e) => InfoSetItemEventHandler?.Invoke(sender, new InfoContextMenuEventArgs(GetItemIndex(sender)));
+        toolStripMenuItem_InfoSetDropGroup.Click += (sender, e) => InfoSetDropGroupEventHandler?.Invoke(sender, new InfoContextMenuEventArgs(GetItemIndex(sender)));
+        toolStripMenuItem_InfoRename.Click += (sender, e) => InfoRenameDropGroupEventHandler?.Invoke(sender, new InfoContextMenuEventArgs(GetItemIndex(sender)));
+        toolStripMenuItem_InfoViewReferences.Click += (sender, e) => InfoViewReferencesEventHandler?.Invoke(sender, new InfoContextMenuEventArgs(GetItemIndex(sender)));
+
+        // TreeView ContextMenu
+        toolStripMenuItem_TreeViewRename.Click += (sender, e) => TreeRenameDropGroupEventHandler?.Invoke(sender, new TreeContextMenuEventArgs(dropTreeView.SelectedNode));
+        toolStripMenuItem_TreeViewViewReferences.Click += (sender, e) => TreeViewReferencesEventHandler?.Invoke(sender, new TreeContextMenuEventArgs(dropTreeView.SelectedNode));
+        toolStripMenuItem_AddSubId.Click += (sender, e) => AddSubIdEventHandler?.Invoke(sender, e);
+        toolStripMenuItem_DeleteSubId.Click += (sender, e) => DeleteSubIdEventHandler?.Invoke(sender, new TreeContextMenuEventArgs(dropTreeView.SelectedNode));
+
+        // set SelectedNode on right click
+        dropTreeView.NodeMouseClick += SetSelectedNode;
+        contextMenuStrip_TreeViewItem.Opening += HandleTreeNodeContextMenu;
     }
 
     public void AttachToParent(Control parent)
@@ -159,6 +183,7 @@ public partial class MonsterView : Form
             textBox.ContextMenuStrip.Items[1].Enabled = true;
             textBox.ContextMenuStrip.Items[2].Enabled = true;
             textBox.ContextMenuStrip.Items[3].Enabled = false;
+            textBox.ContextMenuStrip.Items[4].Enabled = false;
         }
         else if (dropId > 0)
         {
@@ -166,6 +191,7 @@ public partial class MonsterView : Form
             textBox.ContextMenuStrip.Items[1].Enabled = true;
             textBox.ContextMenuStrip.Items[2].Enabled = true;
             textBox.ContextMenuStrip.Items[3].Enabled = false;
+            textBox.ContextMenuStrip.Items[4].Enabled = true;
         }
         else if (dropId < 0)
         {
@@ -173,48 +199,40 @@ public partial class MonsterView : Form
             textBox.ContextMenuStrip.Items[1].Enabled = true;
             textBox.ContextMenuStrip.Items[2].Enabled = true;
             textBox.ContextMenuStrip.Items[3].Enabled = true;
+            textBox.ContextMenuStrip.Items[4].Enabled = true;
         }
     }
 
-    private void ShowDropInfoContextMenuTreeNode(object? sender, TreeNodeMouseClickEventArgs e)
+    private void SetSelectedNode(object? sender, TreeNodeMouseClickEventArgs e)
     {
-        if (e.Button != MouseButtons.Right || e.Node.ContextMenuStrip == null)
-            return;
-
         dropTreeView.SelectedNode = e.Node;
+    }
 
-        if (!int.TryParse(e.Node.Name, out int dropId))
-        {
-            e.Node.ContextMenuStrip.Items[0].Enabled = false;
-            e.Node.ContextMenuStrip.Items[1].Enabled = false;
-            e.Node.ContextMenuStrip.Items[2].Enabled = false;
-            e.Node.ContextMenuStrip.Items[3].Enabled = false;
+    private void HandleTreeNodeContextMenu(object? sender, EventArgs e)
+    {
+        TreeNode selectedNode = dropTreeView.SelectedNode;
+
+        if (selectedNode == null)
             return;
-        }
+
+        if (!int.TryParse(selectedNode.Name, out int dropId))
+            return;
 
         if (dropId == 0)
         {
-            e.Node.ContextMenuStrip.Items[0].Enabled = false;
-            e.Node.ContextMenuStrip.Items[1].Enabled = true;
-            e.Node.ContextMenuStrip.Items[2].Enabled = true;
-            e.Node.ContextMenuStrip.Items[3].Enabled = false;
+            toolStripMenuItem_TreeViewRename.Enabled = false;
+            toolStripMenuItem_TreeViewViewReferences.Enabled = false;
         }
         else if (dropId > 0)
         {
-            e.Node.ContextMenuStrip.Items[0].Enabled = true;
-            e.Node.ContextMenuStrip.Items[1].Enabled = true;
-            e.Node.ContextMenuStrip.Items[2].Enabled = true;
-            e.Node.ContextMenuStrip.Items[3].Enabled = false;
+            toolStripMenuItem_TreeViewRename.Enabled = false;
+            toolStripMenuItem_TreeViewViewReferences.Enabled = true;
         }
         else if (dropId < 0)
         {
-            e.Node.ContextMenuStrip.Items[0].Enabled = true;
-            e.Node.ContextMenuStrip.Items[1].Enabled = true;
-            e.Node.ContextMenuStrip.Items[2].Enabled = true;
-            e.Node.ContextMenuStrip.Items[3].Enabled = true;
+            toolStripMenuItem_TreeViewRename.Enabled = true;
+            toolStripMenuItem_TreeViewViewReferences.Enabled = true;
         }
-
-
     }
 
     private int GetItemIndex(object? sender)
