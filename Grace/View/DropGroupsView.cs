@@ -11,7 +11,7 @@ public partial class DropGroupsView : Form
 {
     public event EventHandler<LoadDropGroupsEventArgs>? LoadDropGroupsEventHandler;
     public event EventHandler<FilterDropGroupsEventArgs>? FilterDropGroupsEventHandler;
-    public event EventHandler<DataGridViewCellEventArgs>? SelectDropGroupEventHandler;
+    public event EventHandler? SelectDropGroupEventHandler;
     public event EventHandler<TreeViewEventArgs>? SelectDropEventHandler;
     public event EventHandler? SaveDropEventHandler;
     public event EventHandler<ContextMenuEventArgs>? RemoveItemEventHandler;
