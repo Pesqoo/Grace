@@ -20,6 +20,7 @@ public class DropGroupPresenter
     private readonly DropGroupCache _dropGroupCache;
     private readonly DropRepository _dropRepository;
     private readonly MonsterRepository _monsterRepository;
+    private readonly ItemRepository _itemRepository;
 
     public DropGroupPresenter(
         DropGroupsView dropGroupView,
@@ -32,7 +33,8 @@ public class DropGroupPresenter
         ItemCache itemCache,
         DropGroupCache dropGroupCache,
         DropRepository dropRepository,
-        MonsterRepository monsterRepository)
+        MonsterRepository monsterRepository,
+        ItemRepository itemRepository)
     {
         _dropGroupView = dropGroupView;
         _updateWarningView = updateWarningView;
@@ -45,6 +47,7 @@ public class DropGroupPresenter
         _dropGroupCache = dropGroupCache;
         _dropRepository = dropRepository;
         _monsterRepository = monsterRepository;
+        _itemRepository = itemRepository;
 
         _dropGroupView.Load += async (sender, e) => await DropGroupView_LoadDropGroups(sender, new LoadDropGroupsEventArgs(false));
 
@@ -281,7 +284,13 @@ public class DropGroupPresenter
             ? await _monsterRepository.GetByReferenceToDropGroupId(dropId)
             : await _monsterRepository.GetByReferenceToItemId(dropId);
 
-        _referencesView.SetDataSource(affectedMonsters);
+        var affectedItems = dropId < 0
+            ? await _itemRepository.GetByReferenceToDropGroupId(dropId)
+            : await _itemRepository.GetByReferenceToItemId(dropId);
+
+        _referencesView.SetMonsterDataSource(affectedMonsters);
+        _referencesView.SetItemDataSource(affectedItems);
+
         _referencesView.ShowDialog();
     }
     #endregion
@@ -311,7 +320,12 @@ public class DropGroupPresenter
             ? await _monsterRepository.GetByReferenceToDropGroupId(dropId)
             : await _monsterRepository.GetByReferenceToItemId(dropId);
 
-        _referencesView.SetDataSource(affectedMonsters);
+        var affectedItems = dropId < 0
+            ? await _itemRepository.GetByReferenceToDropGroupId(dropId)
+            : await _itemRepository.GetByReferenceToItemId(dropId);
+
+        _referencesView.SetMonsterDataSource(affectedMonsters);
+        _referencesView.SetItemDataSource(affectedItems);
         _referencesView.ShowDialog();
     }
 
@@ -340,7 +354,12 @@ public class DropGroupPresenter
             ? await _monsterRepository.GetByReferenceToDropGroupId(drop.Id)
             : await _monsterRepository.GetByReferenceToItemId(drop.Id);
 
-        _referencesView.SetDataSource(affectedMonsters);
+        var affectedItems = drop.Id < 0
+            ? await _itemRepository.GetByReferenceToDropGroupId(drop.Id)
+            : await _itemRepository.GetByReferenceToItemId(drop.Id);
+
+        _referencesView.SetMonsterDataSource(affectedMonsters);
+        _referencesView.SetItemDataSource(affectedItems);
         _referencesView.ShowDialog();
     }
 }

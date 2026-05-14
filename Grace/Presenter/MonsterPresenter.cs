@@ -61,14 +61,14 @@ public class MonsterPresenter
         _monsterView.SelectMonsterEventHandler += async (sender, e) => await UpdateDropTreeView();
         _monsterView.FilterMonstersEventHandler += async (sender, e) => await MonsterView_FilterMonsters(sender, e);
         _monsterView.SelectDropEventHandler += async (sender, e) => await MonsterView_SelectDrop(sender, e);
-        _monsterView.SaveDropEventHandler += async (sender, e) => await MonsterView_UpdateDrop(sender, e);
+        _monsterView.DropInfo.SaveDropEventHandler += async (sender, e) => await MonsterView_UpdateDrop(sender, e);
 
         // DropInfo ContextMenu
-        _monsterView.InfoRemoveItemEventHandler += MonsterView_InfoRemoveDrop;
-        _monsterView.InfoSetItemEventHandler += MonsterView_InfoSetDropItem;
-        _monsterView.InfoSetDropGroupEventHandler += MonsterView_InfoSetDropGroup;
-        _monsterView.InfoRenameDropGroupEventHandler += MonsterView_InfoRenameDropGroup;
-        _monsterView.InfoViewReferencesEventHandler += async (sender, e) => await MonsterView_InfoViewReferences(sender, e);
+        _monsterView.DropInfo.RemoveItemEventHandler += MonsterView_InfoRemoveDrop;
+        _monsterView.DropInfo.SetItemEventHandler += MonsterView_InfoSetDropItem;
+        _monsterView.DropInfo.SetDropGroupEventHandler += MonsterView_InfoSetDropGroup;
+        _monsterView.DropInfo.RenameDropGroupEventHandler += MonsterView_InfoRenameDropGroup;
+        _monsterView.DropInfo.ViewReferencesEventHandler += async (sender, e) => await MonsterView_InfoViewReferences(sender, e);
 
         // TreeView ContextMenu
         _monsterView.TreeRenameDropGroupEventHandler += MonsterView_TreeRenameDropGroup;
@@ -121,7 +121,7 @@ public class MonsterPresenter
         if (_monsterView.SelectedMonster is not Monster selectedMonster)
         {
             _monsterView.DropTreeView.Nodes.Clear();
-            _monsterView.CurrentDrop = new();
+            _monsterView.DropInfo.CurrentDrop = null;
             return;
         }
 
@@ -198,7 +198,7 @@ public class MonsterPresenter
                 return;
             }
 
-            _monsterView.CurrentDrop = dropGroup;
+            _monsterView.DropInfo.CurrentDrop = dropGroup;
         }
         // DropTable
         else if (e.Node?.Tag is string tagString)
@@ -212,18 +212,23 @@ public class MonsterPresenter
                 return;
             }
 
-            _monsterView.CurrentDrop = dropTable;
+            _monsterView.DropInfo.CurrentDrop = dropTable;
         }
         // Empty or Item
         else if (e.Node?.Tag is null)
         {
-            _monsterView.CurrentDrop = new();
+            _monsterView.DropInfo.CurrentDrop = new();
         }
     }
 
     private async Task MonsterView_UpdateDrop(object? sender, EventArgs e)
     {
-        Drop drop = _monsterView.CurrentDrop;
+        Drop drop = _monsterView.DropInfo.CurrentDrop;
+        if (drop == null)
+        {
+            MessageBox.Show("No DropGroup selected.", "Information", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            return;
+        }
         int result;
 
         if (drop.SubId == -1)
@@ -251,21 +256,21 @@ public class MonsterPresenter
     #region DropInfo ContextMenu
     private void MonsterView_InfoRemoveDrop(object? sender, InfoContextMenuEventArgs e)
     {
-        if (e.ItemIndex == -1)
+        if (e.ItemIndex == -1 || _monsterView.DropInfo.CurrentDrop is null)
             return;
 
-        Drop tempDrop = _monsterView.CurrentDrop;
+        Drop tempDrop = _monsterView.DropInfo.CurrentDrop;
         tempDrop.DropItemIds[e.ItemIndex] = 0;
         tempDrop.DropMaxCounts[e.ItemIndex] = 0;
         tempDrop.DropMinCounts[e.ItemIndex] = 0;
         tempDrop.DropPercentages[e.ItemIndex] = 0;
         tempDrop.ItemNames[e.ItemIndex] = "Empty slot";
-        _monsterView.CurrentDrop = tempDrop;
+        _monsterView.DropInfo.CurrentDrop = tempDrop;
     }
 
     private void MonsterView_InfoSetDropItem(object? sender, InfoContextMenuEventArgs e)
     {
-        if (e.ItemIndex == -1)
+        if (e.ItemIndex == -1 || _monsterView.DropInfo.CurrentDrop is null)
             return;
 
         var itemId = _setItemPresenter.OnShowView();
@@ -273,15 +278,15 @@ public class MonsterPresenter
         if (itemId == 0)
             return;
 
-        Drop tempDrop = _monsterView.CurrentDrop;
+        Drop tempDrop = _monsterView.DropInfo.CurrentDrop;
         tempDrop.DropItemIds[e.ItemIndex] = itemId;
         tempDrop.ItemNames[e.ItemIndex] = ItemCache.Cache[itemId];
-        _monsterView.CurrentDrop = tempDrop;
+        _monsterView.DropInfo.CurrentDrop = tempDrop;
     }
 
     private void MonsterView_InfoSetDropGroup(object? sender, InfoContextMenuEventArgs e)
     {
-        if (e.ItemIndex == -1)
+        if (e.ItemIndex == -1 || _monsterView.DropInfo.CurrentDrop is null)
             return;
 
         var dropGroupId = _setDropGroupPresenter.OnShowView();
@@ -289,16 +294,16 @@ public class MonsterPresenter
         if (dropGroupId == 0)
             return;
 
-        Drop tempDrop = _monsterView.CurrentDrop;
+        Drop tempDrop = _monsterView.DropInfo.CurrentDrop;
         var dropGroupName = DropGroupCache.Cache[dropGroupId].Alias;
         tempDrop.DropItemIds[e.ItemIndex] = dropGroupId;
         tempDrop.ItemNames[e.ItemIndex] = $"{dropGroupId}" + (dropGroupName != null && dropGroupName != string.Empty ? $": {dropGroupName}" : string.Empty);
-        _monsterView.CurrentDrop = tempDrop;
+        _monsterView.DropInfo.CurrentDrop = tempDrop;
     }
 
     private void MonsterView_InfoRenameDropGroup(object? sender, InfoContextMenuEventArgs e)
     {
-        if (e.ItemIndex == -1)
+        if (e.ItemIndex == -1 || _monsterView.DropInfo.CurrentDrop is null)
             return;
 
         var newName = _renameDropGroupPresenter.OnShowView();
@@ -308,7 +313,7 @@ public class MonsterPresenter
             return;
         }
 
-        int dropGroupId = _monsterView.CurrentDrop.DropItemIds[e.ItemIndex];
+        int dropGroupId = _monsterView.DropInfo.CurrentDrop.DropItemIds[e.ItemIndex];
         DropGroupCache.AddDropGroupName(dropGroupId, newName);
 
         var nodes = _monsterView.DropTreeView.SelectedNode.Nodes.FindByName(dropGroupId.ToString(), true);
@@ -318,17 +323,17 @@ public class MonsterPresenter
             node.Text = $"{dropGroupId}: {newName}";
         }
 
-        Drop tempDrop = _monsterView.CurrentDrop;
+        Drop tempDrop = _monsterView.DropInfo.CurrentDrop;
         tempDrop.ItemNames[e.ItemIndex] = $"{dropGroupId}: {newName}";
-        _monsterView.CurrentDrop = tempDrop;
+        _monsterView.DropInfo.CurrentDrop = tempDrop;
     }
 
     private async Task MonsterView_InfoViewReferences(object? sender, InfoContextMenuEventArgs e)
     {
-        if (e.ItemIndex == -1)
+        if (e.ItemIndex == -1 || _monsterView.DropInfo.CurrentDrop == null)
             return;
 
-        int dropId = _monsterView.CurrentDrop.DropItemIds[e.ItemIndex];
+        int dropId = _monsterView.DropInfo.CurrentDrop.DropItemIds[e.ItemIndex];
 
         if (dropId == 0)
             return;
@@ -337,7 +342,7 @@ public class MonsterPresenter
             ? await _monsterRepository.GetByReferenceToDropGroupId(dropId)
             : await _monsterRepository.GetByReferenceToItemId(dropId);
 
-        _referencesView.SetDataSource(affectedMonsters);
+        _referencesView.SetMonsterDataSource(affectedMonsters);
         _referencesView.ShowDialog();
     }
     #endregion
@@ -367,7 +372,7 @@ public class MonsterPresenter
             ? await _monsterRepository.GetByReferenceToDropGroupId(dropId)
             : await _monsterRepository.GetByReferenceToItemId(dropId);
 
-        _referencesView.SetDataSource(affectedMonsters);
+        _referencesView.SetMonsterDataSource(affectedMonsters);
         _referencesView.ShowDialog();
     }
 

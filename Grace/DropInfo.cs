@@ -7,6 +7,7 @@ namespace Grace;
 
 public partial class DropInfo : UserControl
 {
+    public event EventHandler? SaveDropEventHandler;
     public event EventHandler<InfoContextMenuEventArgs>? RemoveItemEventHandler;
     public event EventHandler<InfoContextMenuEventArgs>? SetItemEventHandler;
     public event EventHandler<InfoContextMenuEventArgs>? SetDropGroupEventHandler;
@@ -35,6 +36,8 @@ public partial class DropInfo : UserControl
 
     private void InitializeEvent()
     {
+        btn_Save.Click += (sender, e) => { SaveDropEventHandler?.Invoke(sender, e); };
+
         foreach (var textBox in DropNames)
             textBox.MouseDown += ShowDropInfoContextMenu;
 

@@ -1,7 +1,6 @@
 using Grace.Event.ContextMenu;
 using Grace.Event.Monster;
 using Grace.Model;
-using static Grace.Common.Util;
 using Timer = System.Windows.Forms.Timer;
 
 namespace Grace;
@@ -12,14 +11,6 @@ public partial class MonsterView : Form
     public event EventHandler<FilterMonstersEventArgs>? FilterMonstersEventHandler;
     public event EventHandler? SelectMonsterEventHandler;
     public event EventHandler<TreeViewEventArgs>? SelectDropEventHandler;
-    public event EventHandler? SaveDropEventHandler;
-
-    // DropInfo ContextMenu
-    public event EventHandler<InfoContextMenuEventArgs>? InfoRemoveItemEventHandler;
-    public event EventHandler<InfoContextMenuEventArgs>? InfoSetItemEventHandler;
-    public event EventHandler<InfoContextMenuEventArgs>? InfoSetDropGroupEventHandler;
-    public event EventHandler<InfoContextMenuEventArgs>? InfoRenameDropGroupEventHandler;
-    public event EventHandler<InfoContextMenuEventArgs>? InfoViewReferencesEventHandler;
 
     // TreeView ContextMenu
     public event EventHandler<TreeContextMenuEventArgs>? TreeRenameDropGroupEventHandler;
@@ -30,57 +21,8 @@ public partial class MonsterView : Form
     public Monster? SelectedMonster => monsterDataGrid.CurrentRow?.DataBoundItem as Monster;
     public DataGridView MonsterDataGrid => monsterDataGrid;
     public TreeView DropTreeView { get { return dropTreeView; } set { dropTreeView = value; } }
-    private TextBox[] DropNames => GetControlsByName<TextBox>(groupBox_DropGroupDetails, "DropName");
-    private NumericUpDown[] DropMinCounts => GetControlsByName<NumericUpDown>(groupBox_DropGroupDetails, "DropMinCount");
-    private NumericUpDown[] DropMaxCounts => GetControlsByName<NumericUpDown>(groupBox_DropGroupDetails, "DropMaxCount");
-    private MaskedTextBox[] DropChances => GetControlsByName<MaskedTextBox>(groupBox_DropGroupDetails, "DropChance");
     public ProgressBar ProgressBar => progressBar1;
     public bool HideMonstersWithoutTable => checkBox_NoTable.Checked;
-
-    private Drop _currentDrop = new();
-    public Drop CurrentDrop
-    {
-        get
-        {
-            Drop currentDrop = new()
-            {
-                Id = Convert.ToInt32(textBox_DropId.Text),
-                SubId = Convert.ToInt32(textBox_DropId.Tag)
-            };
-
-            for (int i = 0; i < 10; i++)
-            {
-                currentDrop.DropItemIds[i] = _currentDrop.DropItemIds[i];
-                currentDrop.ItemNames[i] = DropNames[i].Text;
-                currentDrop.DropMinCounts[i] = Convert.ToInt32(DropMinCounts[i].Value);
-                currentDrop.DropMaxCounts[i] = Convert.ToInt32(DropMaxCounts[i].Value);
-                currentDrop.DropPercentages[i] = Convert.ToDouble(DropChances[i].Text);
-            }
-
-            _currentDrop = currentDrop;
-            return _currentDrop;
-        }
-        set
-        {
-            double sum = 0.0;
-            for (int i = 0; i < 10; i++)
-            {
-                DropNames[i].Text = value.ItemNames[i];
-                DropMinCounts[i].Value = value.DropMinCounts[i];
-                DropMaxCounts[i].Value = value.DropMaxCounts[i];
-                DropChances[i].Text = value.DropPercentages[i].ToString("0.00000000");
-                sum += value.DropPercentages[i];
-            }
-
-            string sumString = (sum).ToString("0.00");
-            label_TotalPercentage.Text = $"Total: {sumString}";
-
-            textBox_DropId.Text = value.Id.ToString();
-            textBox_DropId.Tag = value.SubId;
-
-            _currentDrop = value;
-        }
-    }
 
     public MonsterView()
     {
@@ -97,19 +39,7 @@ public partial class MonsterView : Form
         // monsterDataGrid.CellClick += (sender, e) => { SelectMonsterEventHandler?.Invoke(sender, e); };
         monsterDataGrid.CellClick += (sender, e) => { SelectMonsterEventHandler?.Invoke(sender, e); };
         dropTreeView.AfterSelect += (sender, e) => { SelectDropEventHandler?.Invoke(sender, e); };
-        btn_Save.Click += (sender, e) => { SaveDropEventHandler?.Invoke(sender, e); };
 
-        // enable/disable DropInfo ContextMenuItems
-        foreach (var textBox in DropNames)
-            textBox.MouseDown += ShowDropInfoContextMenu;
-
-
-        // DropInfo ContextMenu
-        toolStripMenuItem_InfoRemove.Click += (sender, e) => InfoRemoveItemEventHandler?.Invoke(sender, new InfoContextMenuEventArgs(GetItemIndex(sender)));
-        toolStripMenuItem_InfoSetItem.Click += (sender, e) => InfoSetItemEventHandler?.Invoke(sender, new InfoContextMenuEventArgs(GetItemIndex(sender)));
-        toolStripMenuItem_InfoSetDropGroup.Click += (sender, e) => InfoSetDropGroupEventHandler?.Invoke(sender, new InfoContextMenuEventArgs(GetItemIndex(sender)));
-        toolStripMenuItem_InfoRename.Click += (sender, e) => InfoRenameDropGroupEventHandler?.Invoke(sender, new InfoContextMenuEventArgs(GetItemIndex(sender)));
-        toolStripMenuItem_InfoViewReferences.Click += (sender, e) => InfoViewReferencesEventHandler?.Invoke(sender, new InfoContextMenuEventArgs(GetItemIndex(sender)));
 
         // TreeView ContextMenu
         toolStripMenuItem_TreeViewRename.Click += (sender, e) => TreeRenameDropGroupEventHandler?.Invoke(sender, new TreeContextMenuEventArgs(dropTreeView.SelectedNode));
@@ -133,8 +63,8 @@ public partial class MonsterView : Form
 
     public void ShowResult(string message, bool success = true)
     {
-        label_Result.ForeColor = success ? Color.Green : Color.Red;
-        label_Result.Text = message;
+        DropInfo.label_Result.ForeColor = success ? Color.Green : Color.Red;
+        DropInfo.label_Result.Text = message;
 
         Timer timer = new();
         timer.Interval = 2000;
@@ -142,7 +72,7 @@ public partial class MonsterView : Form
         timer.Tick += (sender, e) =>
         {
             Timer? _t = sender as Timer;
-            label_Result.Text = "";
+            DropInfo.label_Result.Text = "";
             _t?.Stop();
         };
     }
@@ -160,47 +90,6 @@ public partial class MonsterView : Form
         }
 
         return (MonsterFilterType)checkedIndex;
-    }
-
-    private void ShowDropInfoContextMenu(object? sender, MouseEventArgs e)
-    {
-        if (e.Button != MouseButtons.Right || _currentDrop.Id == 0)
-            return;
-
-        if (sender is not TextBox textBox)
-            return;
-
-        int itemIndex = Array.IndexOf(DropNames, textBox);
-
-        if (textBox.ContextMenuStrip == null || itemIndex == -1)
-            return;
-
-        int dropId = _currentDrop.DropItemIds[itemIndex];
-
-        if (dropId == 0)
-        {
-            textBox.ContextMenuStrip.Items[0].Enabled = false;
-            textBox.ContextMenuStrip.Items[1].Enabled = true;
-            textBox.ContextMenuStrip.Items[2].Enabled = true;
-            textBox.ContextMenuStrip.Items[3].Enabled = false;
-            textBox.ContextMenuStrip.Items[4].Enabled = false;
-        }
-        else if (dropId > 0)
-        {
-            textBox.ContextMenuStrip.Items[0].Enabled = true;
-            textBox.ContextMenuStrip.Items[1].Enabled = true;
-            textBox.ContextMenuStrip.Items[2].Enabled = true;
-            textBox.ContextMenuStrip.Items[3].Enabled = false;
-            textBox.ContextMenuStrip.Items[4].Enabled = true;
-        }
-        else if (dropId < 0)
-        {
-            textBox.ContextMenuStrip.Items[0].Enabled = true;
-            textBox.ContextMenuStrip.Items[1].Enabled = true;
-            textBox.ContextMenuStrip.Items[2].Enabled = true;
-            textBox.ContextMenuStrip.Items[3].Enabled = true;
-            textBox.ContextMenuStrip.Items[4].Enabled = true;
-        }
     }
 
     private void SetSelectedNode(object? sender, TreeNodeMouseClickEventArgs e)
@@ -233,22 +122,5 @@ public partial class MonsterView : Form
             toolStripMenuItem_TreeViewRename.Enabled = true;
             toolStripMenuItem_TreeViewViewReferences.Enabled = true;
         }
-    }
-
-    private int GetItemIndex(object? sender)
-    {
-        if (sender is not ToolStripMenuItem menuItem)
-            return -1;
-
-        if (menuItem.GetCurrentParent() is not ContextMenuStrip contextMenu)
-            return -1;
-
-        if (contextMenu.SourceControl is not TextBox textBox)
-            return -1;
-
-        if (textBox is null)
-            return -1;
-
-        return Array.IndexOf(DropNames, textBox);
     }
 }

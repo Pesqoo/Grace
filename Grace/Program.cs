@@ -47,6 +47,7 @@ internal static class Program
             .AddSingleton<DBManager>()
             .AddSingleton<DropRepository>()
             .AddSingleton<MonsterRepository>()
+            .AddSingleton<ItemRepository>()
             .AddSingleton<MonsterCache>()
             .AddSingleton<DropGroupCache>()
             .AddSingleton<ItemCache>();
@@ -59,6 +60,3 @@ internal static class Program
         ServiceProvider.GetRequiredService<MainPresenter>();
     }
 }
-
-// workflow (ablauf nutzerinteraktion), wireframes (balsamiq, figma), epics, komponentendiagramm, 
-// schriftlicher vorschlag so sieht das ding aus, das kann das ding

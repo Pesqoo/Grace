@@ -45,15 +45,15 @@
             // 
             // textBox_Filter
             // 
-            textBox_Filter.Location = new Point(83, 12);
+            textBox_Filter.Location = new Point(50, 12);
             textBox_Filter.Name = "textBox_Filter";
-            textBox_Filter.Size = new Size(112, 23);
+            textBox_Filter.Size = new Size(248, 23);
             textBox_Filter.TabIndex = 1;
             // 
             // btn_Cancel
             // 
             btn_Cancel.DialogResult = DialogResult.Cancel;
-            btn_Cancel.Location = new Point(12, 41);
+            btn_Cancel.Location = new Point(75, 41);
             btn_Cancel.Name = "btn_Cancel";
             btn_Cancel.Size = new Size(85, 23);
             btn_Cancel.TabIndex = 2;
@@ -63,7 +63,7 @@
             // btn_Filter
             // 
             btn_Filter.DialogResult = DialogResult.OK;
-            btn_Filter.Location = new Point(110, 41);
+            btn_Filter.Location = new Point(166, 41);
             btn_Filter.Name = "btn_Filter";
             btn_Filter.Size = new Size(85, 23);
             btn_Filter.TabIndex = 3;
@@ -76,7 +76,7 @@
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             CancelButton = btn_Cancel;
-            ClientSize = new Size(209, 76);
+            ClientSize = new Size(310, 76);
             Controls.Add(btn_Filter);
             Controls.Add(btn_Cancel);
             Controls.Add(textBox_Filter);

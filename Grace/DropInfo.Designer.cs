@@ -39,6 +39,12 @@ partial class DropInfo
         btn_Save = new Button();
         upDown_DropMinCount10 = new NumericUpDown();
         textBox_DropName10 = new TextBox();
+        contextMenuStrip_DropInfo = new ContextMenuStrip(components);
+        toolStripMenuItem_InfoRemove = new ToolStripMenuItem();
+        toolStripMenuItem_InfoSetItem = new ToolStripMenuItem();
+        toolStripMenuItem_InfoSetDropGroup = new ToolStripMenuItem();
+        toolStripMenuItem_InfoRename = new ToolStripMenuItem();
+        toolStripMenuItem_InfoViewReferences = new ToolStripMenuItem();
         label_Item9 = new Label();
         textBox_DropChance9 = new MaskedTextBox();
         upDown_DropMaxCount9 = new NumericUpDown();
@@ -88,15 +94,10 @@ partial class DropInfo
         upDown_DropMaxCount1 = new NumericUpDown();
         upDown_DropMinCount1 = new NumericUpDown();
         textBox_DropName1 = new TextBox();
-        contextMenuStrip_DropInfo = new ContextMenuStrip(components);
-        toolStripMenuItem_InfoRemove = new ToolStripMenuItem();
-        toolStripMenuItem_InfoSetItem = new ToolStripMenuItem();
-        toolStripMenuItem_InfoSetDropGroup = new ToolStripMenuItem();
-        toolStripMenuItem_InfoRename = new ToolStripMenuItem();
-        toolStripMenuItem_InfoViewReferences = new ToolStripMenuItem();
         groupBox_DropInfo.SuspendLayout();
         ((System.ComponentModel.ISupportInitialize)upDown_DropMaxCount10).BeginInit();
         ((System.ComponentModel.ISupportInitialize)upDown_DropMinCount10).BeginInit();
+        contextMenuStrip_DropInfo.SuspendLayout();
         ((System.ComponentModel.ISupportInitialize)upDown_DropMaxCount9).BeginInit();
         ((System.ComponentModel.ISupportInitialize)upDown_DropMinCount9).BeginInit();
         ((System.ComponentModel.ISupportInitialize)upDown_DropMaxCount8).BeginInit();
@@ -115,7 +116,6 @@ partial class DropInfo
         ((System.ComponentModel.ISupportInitialize)upDown_DropMinCount2).BeginInit();
         ((System.ComponentModel.ISupportInitialize)upDown_DropMaxCount1).BeginInit();
         ((System.ComponentModel.ISupportInitialize)upDown_DropMinCount1).BeginInit();
-        contextMenuStrip_DropInfo.SuspendLayout();
         SuspendLayout();
         // 
         // groupBox_DropInfo
@@ -268,6 +268,47 @@ partial class DropInfo
         textBox_DropName10.Size = new Size(258, 23);
         textBox_DropName10.TabIndex = 63;
         textBox_DropName10.Tag = "itemName";
+        // 
+        // contextMenuStrip_DropInfo
+        // 
+        contextMenuStrip_DropInfo.Items.AddRange(new ToolStripItem[] { toolStripMenuItem_InfoRemove, toolStripMenuItem_InfoSetItem, toolStripMenuItem_InfoSetDropGroup, toolStripMenuItem_InfoRename, toolStripMenuItem_InfoViewReferences });
+        contextMenuStrip_DropInfo.Name = "contextMenuStrip_EditDrop";
+        contextMenuStrip_DropInfo.Size = new Size(160, 114);
+        // 
+        // toolStripMenuItem_InfoRemove
+        // 
+        toolStripMenuItem_InfoRemove.Enabled = false;
+        toolStripMenuItem_InfoRemove.Name = "toolStripMenuItem_InfoRemove";
+        toolStripMenuItem_InfoRemove.Size = new Size(159, 22);
+        toolStripMenuItem_InfoRemove.Text = "Remove";
+        // 
+        // toolStripMenuItem_InfoSetItem
+        // 
+        toolStripMenuItem_InfoSetItem.Enabled = false;
+        toolStripMenuItem_InfoSetItem.Name = "toolStripMenuItem_InfoSetItem";
+        toolStripMenuItem_InfoSetItem.Size = new Size(159, 22);
+        toolStripMenuItem_InfoSetItem.Text = "Set Item";
+        // 
+        // toolStripMenuItem_InfoSetDropGroup
+        // 
+        toolStripMenuItem_InfoSetDropGroup.Enabled = false;
+        toolStripMenuItem_InfoSetDropGroup.Name = "toolStripMenuItem_InfoSetDropGroup";
+        toolStripMenuItem_InfoSetDropGroup.Size = new Size(159, 22);
+        toolStripMenuItem_InfoSetDropGroup.Text = "Set DropGroup";
+        // 
+        // toolStripMenuItem_InfoRename
+        // 
+        toolStripMenuItem_InfoRename.Enabled = false;
+        toolStripMenuItem_InfoRename.Name = "toolStripMenuItem_InfoRename";
+        toolStripMenuItem_InfoRename.Size = new Size(159, 22);
+        toolStripMenuItem_InfoRename.Text = "Rename";
+        // 
+        // toolStripMenuItem_InfoViewReferences
+        // 
+        toolStripMenuItem_InfoViewReferences.Enabled = false;
+        toolStripMenuItem_InfoViewReferences.Name = "toolStripMenuItem_InfoViewReferences";
+        toolStripMenuItem_InfoViewReferences.Size = new Size(159, 22);
+        toolStripMenuItem_InfoViewReferences.Text = "View References";
         // 
         // label_Item9
         // 
@@ -728,47 +769,6 @@ partial class DropInfo
         textBox_DropName1.TabIndex = 1;
         textBox_DropName1.Tag = "itemName";
         // 
-        // contextMenuStrip_DropInfo
-        // 
-        contextMenuStrip_DropInfo.Items.AddRange(new ToolStripItem[] { toolStripMenuItem_InfoRemove, toolStripMenuItem_InfoSetItem, toolStripMenuItem_InfoSetDropGroup, toolStripMenuItem_InfoRename, toolStripMenuItem_InfoViewReferences });
-        contextMenuStrip_DropInfo.Name = "contextMenuStrip_EditDrop";
-        contextMenuStrip_DropInfo.Size = new Size(160, 114);
-        // 
-        // toolStripMenuItem_InfoRemove
-        // 
-        toolStripMenuItem_InfoRemove.Enabled = false;
-        toolStripMenuItem_InfoRemove.Name = "toolStripMenuItem_InfoRemove";
-        toolStripMenuItem_InfoRemove.Size = new Size(159, 22);
-        toolStripMenuItem_InfoRemove.Text = "Remove";
-        // 
-        // toolStripMenuItem_InfoSetItem
-        // 
-        toolStripMenuItem_InfoSetItem.Enabled = false;
-        toolStripMenuItem_InfoSetItem.Name = "toolStripMenuItem_InfoSetItem";
-        toolStripMenuItem_InfoSetItem.Size = new Size(159, 22);
-        toolStripMenuItem_InfoSetItem.Text = "Set Item";
-        // 
-        // toolStripMenuItem_InfoSetDropGroup
-        // 
-        toolStripMenuItem_InfoSetDropGroup.Enabled = false;
-        toolStripMenuItem_InfoSetDropGroup.Name = "toolStripMenuItem_InfoSetDropGroup";
-        toolStripMenuItem_InfoSetDropGroup.Size = new Size(159, 22);
-        toolStripMenuItem_InfoSetDropGroup.Text = "Set DropGroup";
-        // 
-        // toolStripMenuItem_InfoRename
-        // 
-        toolStripMenuItem_InfoRename.Enabled = false;
-        toolStripMenuItem_InfoRename.Name = "toolStripMenuItem_InfoRename";
-        toolStripMenuItem_InfoRename.Size = new Size(159, 22);
-        toolStripMenuItem_InfoRename.Text = "Rename";
-        // 
-        // toolStripMenuItem_InfoViewReferences
-        // 
-        toolStripMenuItem_InfoViewReferences.Enabled = false;
-        toolStripMenuItem_InfoViewReferences.Name = "toolStripMenuItem_InfoViewReferences";
-        toolStripMenuItem_InfoViewReferences.Size = new Size(159, 22);
-        toolStripMenuItem_InfoViewReferences.Text = "View References";
-        // 
         // DropInfo
         // 
         AutoScaleDimensions = new SizeF(7F, 15F);
@@ -780,6 +780,7 @@ partial class DropInfo
         groupBox_DropInfo.PerformLayout();
         ((System.ComponentModel.ISupportInitialize)upDown_DropMaxCount10).EndInit();
         ((System.ComponentModel.ISupportInitialize)upDown_DropMinCount10).EndInit();
+        contextMenuStrip_DropInfo.ResumeLayout(false);
         ((System.ComponentModel.ISupportInitialize)upDown_DropMaxCount9).EndInit();
         ((System.ComponentModel.ISupportInitialize)upDown_DropMinCount9).EndInit();
         ((System.ComponentModel.ISupportInitialize)upDown_DropMaxCount8).EndInit();
@@ -798,14 +799,12 @@ partial class DropInfo
         ((System.ComponentModel.ISupportInitialize)upDown_DropMinCount2).EndInit();
         ((System.ComponentModel.ISupportInitialize)upDown_DropMaxCount1).EndInit();
         ((System.ComponentModel.ISupportInitialize)upDown_DropMinCount1).EndInit();
-        contextMenuStrip_DropInfo.ResumeLayout(false);
         ResumeLayout(false);
     }
 
     #endregion
 
     private GroupBox groupBox_DropInfo;
-    private Label label_Result;
     private TextBox textBox_DropId;
     private Label label_TotalPercentage;
     private Label label_Item10;
@@ -869,4 +868,5 @@ partial class DropInfo
     private ToolStripMenuItem toolStripMenuItem_InfoSetDropGroup;
     private ToolStripMenuItem toolStripMenuItem_InfoRename;
     private ToolStripMenuItem toolStripMenuItem_InfoViewReferences;
+    public Label label_Result;
 }

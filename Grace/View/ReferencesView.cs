@@ -9,9 +9,14 @@ public partial class References : Form
         InitializeComponent();
     }
 
-    public void SetDataSource(List<Monster> monsters)
+    public void SetMonsterDataSource(List<Monster> monsters)
     {
         monsterDataGrid.DataSource = monsters;
+    }
+
+    public void SetItemDataSource(List<Item> items)
+    {
+        itemDataGrid.DataSource = items;
     }
 
     protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
@@ -22,5 +27,12 @@ public partial class References : Form
             return true;
         }
         return base.ProcessCmdKey(ref msg, keyData);
+    }
+
+    protected override void OnFormClosing(FormClosingEventArgs e)
+    {
+        base.OnFormClosing(e);
+        itemDataGrid.DataSource = null;
+        monsterDataGrid.DataSource = null;
     }
 }
